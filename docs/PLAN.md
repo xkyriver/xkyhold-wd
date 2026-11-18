@@ -175,6 +175,10 @@ VM de testes preparada (18/11/2026):
 - Visto: um `cargo new` compilado e ligado com o MSVC na VM corre e imprime "Hello, world!".
 - Armadilhas: o `winget` não está no PATH das sessões SSH (é um alias de `WindowsApps`; o script procura o executável); o `sshd` mantém o PATH com que arrancou, por isso cada comando por SSH começa por reler o PATH do registo; a política de execução do PowerShell é `Restricted` (perfis não carregam; scripts correm com `-ExecutionPolicy Bypass`).
 
+Risco (a), janela Tauri no Windows (18/11/2026): **funciona sem ajustes.** Esqueleto mínimo neste repositório (`src-tauri` com Tauri 2.12 e um comando `probe`; `ui` em Svelte 5 + Vite 8 na porta 5175, com o `app.css` do lx; instalador NSIS por utilizador configurado mas ainda não gerado). Compilado na VM com `npx.cmd tauri build --debug --no-bundle` (primeira compilação 6 min 44 s). Visto pelo agente em captura do ecrã da VM: a janela abre com o WebView2, mostra o desenho da XkyHold e a resposta do Rust (`windows (x86_64)`, `C:\Users\xriver`, `0.1.0`). Atrás dela fica a consola, como esperado num build de debug (o `windows_subsystem = "windows"` só se aplica em release). Não testado: build de release, instalador NSIS, tema escuro, ecrãs com escala acima de 100 %.
+
+Como ver a VM a partir do SSH: `scripts/vm/in-desktop.ps1` corre um programa na sessão do ambiente de trabalho por uma tarefa agendada de logon interativo (sem palavra-passe; nome único por chamada, porque uma tarefa ainda a correr recusa um segundo arranque) e `scripts/vm/screenshot.ps1` grava uma captura. Armadilhas: com a compilação a ocupar as 4 CPUs, as tarefas no ambiente de trabalho ficaram paradas; o `npm`/`npx` do PowerShell são scripts `.ps1` bloqueados pela política `Restricted`, por isso usam-se `npm.cmd`/`npx.cmd`.
+
 Por fazer na Fase 0: (a) janela Tauri na VM (as ferramentas já lá estão), (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
 
 

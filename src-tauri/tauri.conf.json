@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "xkyhold-wd",
+  "identifier": "com.xkyriver.xkyhold-wd",
+  "build": {
+    "beforeDevCommand": "npm run dev --workspace ui",
+    "devUrl": "http://localhost:5175",
+    "beforeBuildCommand": "npm run build --workspace ui",
+    "frontendDist": "../ui/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "XkyHold-wd",
+        "width": 960,
+        "height": 720,
+        "minWidth": 400,
+        "minHeight": 480
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "category": "Utility",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/256x256.png",
+      "icons/icon.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "XKYRIVER",
+    "homepage": "https://xkyhold.xkyriver.com/",
+    "license": "AGPL-3.0-only",
+    "licenseFile": "../LICENSE",
+    "shortDescription": "Encrypted backup of your user folder",
+    "windows": {
+      "nsis": { "installMode": "currentUser" }
+    }
+  }
+}

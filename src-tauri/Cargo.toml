@@ -1,0 +1,19 @@
+[package]
+name = "xkyhold-wd"
+description = "XkyHold-wd: encrypted backup of your Windows user folder"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2.7", features = [] }
+
+[dependencies]
+tauri = { version = "2.12", features = [] }
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
