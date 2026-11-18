@@ -1,0 +1,11 @@
+[package]
+name = "xkyhold-wd-probe-files"
+description = "Phase 0 probe: how Windows answers when a backup reads locked or cloud files"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true

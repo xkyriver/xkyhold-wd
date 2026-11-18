@@ -179,7 +179,22 @@ Risco (a), janela Tauri no Windows (18/11/2026): **funciona sem ajustes.** Esque
 
 Como ver a VM a partir do SSH: `scripts/vm/in-desktop.ps1` corre um programa na sessão do ambiente de trabalho por uma tarefa agendada de logon interativo (sem palavra-passe; nome único por chamada, porque uma tarefa ainda a correr recusa um segundo arranque) e `scripts/vm/screenshot.ps1` grava uma captura. Armadilhas: com a compilação a ocupar as 4 CPUs, as tarefas no ambiente de trabalho ficaram paradas; o `npm`/`npx` do PowerShell são scripts `.ps1` bloqueados pela política `Restricted`, por isso usam-se `npm.cmd`/`npx.cmd`.
 
-Por fazer na Fase 0: (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
+Risco (d), ficheiros bloqueados e "só online" (18/11/2026). Protótipo `crates/probe-files` (lê cada ficheiro como a cópia o fará: `File::open` do Rust, que no Windows pede partilha de leitura, escrita e remoção) contra ficheiros de teste na VM seguros por `scripts/vm/hold-locks.ps1` noutro processo (`scripts/vm/probe-files.ps1` junta tudo). Visto pelo agente na VM:
+
+| Caso | Resposta do Windows |
+|---|---|
+| Ficheiro aberto por outro programa sem partilha (`FileShare.None`) | `open` falha com o erro 32 (`ERROR_SHARING_VIOLATION`) |
+| Ficheiro aberto para escrita com partilha de leitura | Lê-se normalmente |
+| Ficheiro com o conteúdo trancado por intervalo (`LockFileEx`, como fazem bases de dados e o Outlook) | `open` funciona; o `read` falha com o erro 33 (`ERROR_LOCK_VIOLATION`) logo no primeiro byte |
+| `NTUSER.DAT` e `UsrClass.dat` | Erro 32, sempre |
+| Ocultos e de sistema | Lêem-se normalmente; os atributos aparecem em `file_attributes()` |
+| Atributo `Offline` posto à mão | Lê-se normalmente (é só uma marca; sem fornecedor de nuvem nada é descarregado) |
+
+Consequências para a Fase 2: os erros 32 e 33 contam como "bloqueado" (`stats.locked`, com a lista para o ecrã), também quando o 33 aparece a meio da leitura (nunca se guarda um ficheiro parcial); `NTUSER.DAT*` e `UsrClass.dat*` ficam de fora por omissão, como previsto em 4.6; os atributos lêem-se sem `unsafe`, com `std::os::windows::fs::MetadataExt`.
+
+**Não testado:** um ficheiro "só online" real. O OneDrive está instalado na VM mas sem conta; os atributos `RecallOnDataAccess`/`RecallOnOpen` só aparecem com um fornecedor de nuvem ativo. Para o testar é preciso iniciar sessão no OneDrive da VM com uma conta Microsoft (decisão do proprietário) ou instalar um fornecedor de exemplo da Cloud Filter API. Até lá vale a regra da secção 4.6: nunca ler ficheiros com `RecallOnDataAccess` ou `RecallOnOpen`.
+
+Por fazer na Fase 0: (c) login Google com cliente próprio; o ficheiro "só online" real de (d).
 
 
 ## 8. Questões em aberto
