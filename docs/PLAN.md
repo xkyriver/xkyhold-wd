@@ -179,7 +179,7 @@ Risco (a), janela Tauri no Windows (18/11/2026): **funciona sem ajustes.** Esque
 
 Como ver a VM a partir do SSH: `scripts/vm/in-desktop.ps1` corre um programa na sessão do ambiente de trabalho por uma tarefa agendada de logon interativo (sem palavra-passe; nome único por chamada, porque uma tarefa ainda a correr recusa um segundo arranque) e `scripts/vm/screenshot.ps1` grava uma captura. Armadilhas: com a compilação a ocupar as 4 CPUs, as tarefas no ambiente de trabalho ficaram paradas; o `npm`/`npx` do PowerShell são scripts `.ps1` bloqueados pela política `Restricted`, por isso usam-se `npm.cmd`/`npx.cmd`.
 
-Por fazer na Fase 0: (a) janela Tauri na VM (as ferramentas já lá estão), (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
+Por fazer na Fase 0: (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
 
 
 ## 8. Questões em aberto
