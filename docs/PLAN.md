@@ -168,7 +168,14 @@ Risco (b), os crates do lx compilam para Windows? Resposta com `cargo check --ta
 - Consequência para a Fase 2: o trabalho no motor resume-se a um percurso e a um restauro por plataforma (`backup/unix.rs` + `backup/windows.rs`, idem no restauro), com o que é comum (incremental, packs, árvores) partilhado. No crate `app` do lx, `lib.rs`, `scan.rs` e `update.rs` têm partes Unix; o wd terá o seu próprio `scan`, agendador e atualizador.
 - Não testado: compilar e ligar (`link.exe`) de facto, o que só se faz na VM ou no CI; o crate `dest-local` e o `dest-drive` em Windows (não usam APIs Unix, mas só compilam depois do `core`).
 
-Por fazer na Fase 0: (a) janela Tauri na VM, (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
+VM de testes preparada (18/11/2026):
+
+- Acesso por SSH a partir do anfitrião: o contentor encaminha todas as portas para o Windows exceto as dele, por isso basta o IP do contentor (`172.19.0.2`, rede `windows_default`), porta 22. Chave própria só para a VM, sem palavra-passe; atalho `xkyvm` na configuração SSH do proprietário. O servidor é o pacote `Microsoft.OpenSSH.Preview` do winget, ligado por `scripts/vm/enable-ssh.ps1` (o caminho pelo Windows Update, `Add-WindowsCapability`, ficou mais de 30 minutos sem acabar e foi abandonado). A shell do SSH é o Windows PowerShell 5.1.
+- Ferramentas instaladas por `scripts/vm/setup-vm.ps1 -AcceptLicenses` (licenças aceites pelo proprietário a 18/11/2026): Git 2.56.0, Node 26.8.1 (npm 11.19.0), rustup 1.29.3 com Rust 1.100.0 (`rustfmt`, `clippy`), Visual Studio 2022 Build Tools 17.14 (C++ e Windows SDK). WebView2 157 já vinha com o Windows 11 Pro (build 26200).
+- Visto: um `cargo new` compilado e ligado com o MSVC na VM corre e imprime "Hello, world!".
+- Armadilhas: o `winget` não está no PATH das sessões SSH (é um alias de `WindowsApps`; o script procura o executável); o `sshd` mantém o PATH com que arrancou, por isso cada comando por SSH começa por reler o PATH do registo; a política de execução do PowerShell é `Restricted` (perfis não carregam; scripts correm com `-ExecutionPolicy Bypass`).
+
+Por fazer na Fase 0: (a) janela Tauri na VM (as ferramentas já lá estão), (c) login Google com cliente próprio, (d) ficheiro bloqueado e ficheiro "só online".
 
 
 ## 8. Questões em aberto
