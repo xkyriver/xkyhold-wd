@@ -192,9 +192,19 @@ Risco (d), ficheiros bloqueados e "só online" (18/11/2026). Protótipo `crates/
 
 Consequências para a Fase 2: os erros 32 e 33 contam como "bloqueado" (`stats.locked`, com a lista para o ecrã), também quando o 33 aparece a meio da leitura (nunca se guarda um ficheiro parcial); `NTUSER.DAT*` e `UsrClass.dat*` ficam de fora por omissão, como previsto em 4.6; os atributos lêem-se sem `unsafe`, com `std::os::windows::fs::MetadataExt`.
 
-**Não testado:** um ficheiro "só online" real. O OneDrive está instalado na VM mas sem conta; os atributos `RecallOnDataAccess`/`RecallOnOpen` só aparecem com um fornecedor de nuvem ativo. Para o testar é preciso iniciar sessão no OneDrive da VM com uma conta Microsoft (decisão do proprietário) ou instalar um fornecedor de exemplo da Cloud Filter API. Até lá vale a regra da secção 4.6: nunca ler ficheiros com `RecallOnDataAccess` ou `RecallOnOpen`.
+Ficheiro "só online" real (19/11/2026), com o OneDrive da VM ligado à conta do proprietário (login dele). Dois ficheiros de 2 MiB criados numa pasta de teste `OneDrive\XkyHold-wd probe`, sincronizados e postos "só online" com `attrib -P +U`. Visto pelo agente:
 
-Por fazer na Fase 0: (c) login Google com cliente próprio; o ficheiro "só online" real de (d).
+| Passo | Resultado |
+|---|---|
+| Atributos pelo Explorador/PowerShell | `0x501620`: `RecallOnDataAccess`, `Unpinned`, `Offline`, `ReparsePoint`, `Sparse` |
+| Atributos pelo Rust (`symlink_metadata`) | `0x500020`: só `RecallOnDataAccess` e `Unpinned`. O Windows esconde o reparse point, o `Offline` e o `Sparse` de processos que não declaram conhecer ficheiros na nuvem; o `RecallOnDataAccess` continua visível e chega para os reconhecer |
+| Ler só os metadados | Nada descarregado; atributos iguais |
+| Ler o conteúdo a partir do SSH (sessão 0, administrador) | Falha com o erro 395 (`ERROR_CLOUD_FILE_ACCESS_DENIED`) sem descarregar |
+| Ler o conteúdo a partir do ambiente de trabalho (utilizador normal, como a app) | **Descarrega**: 2 MiB lidos em 1,6 s, e o ficheiro passa a `0x420` (já local). O outro ficheiro, não lido, continuou "só online" |
+
+Conclusão: a regra de 4.6 está certa e é necessária. O percurso tem de decidir **antes de abrir** o ficheiro, pelo `RecallOnDataAccess` (e `RecallOnOpen`) dos metadados, e contar o ficheiro em `stats.cloudOnly`. O erro 395 também conta como "só online". Os ficheiros já descarregados (`0x420`) lêem-se como os outros. A pasta de teste foi para a Reciclagem (fica também no lixo do OneDrive); nada mais da conta foi tocado.
+
+Por fazer na Fase 0: (c) login Google com cliente próprio.
 
 
 ## 8. Questões em aberto

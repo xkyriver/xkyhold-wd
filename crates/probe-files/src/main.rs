@@ -11,6 +11,7 @@ const FLAGS: &[(u32, &str)] = &[
     (0x2, "hidden"),
     (0x4, "system"),
     (0x20, "archive"),
+    (0x200, "sparse"),
     (0x400, "reparse"),
     (0x1000, "offline"),
     (0x2000, "notIndexed"),
@@ -32,7 +33,13 @@ fn attributes(_: &std::fs::Metadata) -> u32 {
 }
 
 fn main() {
-    for path in std::env::args().skip(1) {
+    // `--meta` first: only read the metadata, never open the file.
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    let meta_only = args.first().is_some_and(|a| a == "--meta");
+    if meta_only {
+        args.remove(0);
+    }
+    for path in args {
         print!("{path}\n  ");
         match std::fs::symlink_metadata(&path) {
             Ok(meta) => {
@@ -49,6 +56,9 @@ fn main() {
                 );
             }
             Err(e) => println!("metadata error: {e} (os {:?})", e.raw_os_error()),
+        }
+        if meta_only {
+            continue;
         }
         match File::open(&path) {
             Err(e) => println!("  open: {e} (os {:?})", e.raw_os_error()),
