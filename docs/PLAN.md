@@ -204,7 +204,9 @@ Ficheiro "só online" real (19/11/2026), com o OneDrive da VM ligado à conta do
 
 Conclusão: a regra de 4.6 está certa e é necessária. O percurso tem de decidir **antes de abrir** o ficheiro, pelo `RecallOnDataAccess` (e `RecallOnOpen`) dos metadados, e contar o ficheiro em `stats.cloudOnly`. O erro 395 também conta como "só online". Os ficheiros já descarregados (`0x420`) lêem-se como os outros. A pasta de teste foi para a Reciclagem (fica também no lixo do OneDrive); nada mais da conta foi tocado.
 
-Por fazer na Fase 0: (c) login Google com cliente próprio.
+Cliente Google "XkyHold-wd" (19/11/2026): tipo Desktop app, criado pelo agente na consola do projeto `xkyhold` (Chrome "pulsar" do proprietário), com o "sim" dele. ID `780229057994-0583pofk3onqt68ijqlip77ahvi5julr.apps.googleusercontent.com`. O segredo só existe no `.env.local` (ignorado pelo git, permissões 600; copiado pelo proprietário, o agente não o viu). O `.env.example` mostra as variáveis `XKYHOLD_WD_CLIENT_ID` e `XKYHOLD_WD_CLIENT_SECRET`.
+
+Por fazer na Fase 0: (c) login Google a partir da VM com o cliente novo, refresh token no Gestor de Credenciais.
 
 
 ## 8. Questões em aberto
