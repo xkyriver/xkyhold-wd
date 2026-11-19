@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 em curso**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; próxima: Fase 1 (adenda ao formato)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -154,7 +154,7 @@ As do lx, sem exceção (secção 6 do `xkyhold-lx/docs/PLAN.md` e secção 3 do
 
 - 18/11/2026: plano base escrito. Decisões W1–W4 tomadas pelo proprietário; W5–W10 propostas e aprovadas no mesmo dia, mais W11 (interface). A VM Windows 11 (`omarchy-windows`) está instalada e a correr. Nada implementado; a pasta ainda não é um repositório git.
 
-### Fase 0 (em curso, 18/11/2026)
+### Fase 0 (18–19/11/2026, concluída)
 
 Feito:
 
@@ -206,7 +206,16 @@ Conclusão: a regra de 4.6 está certa e é necessária. O percurso tem de decid
 
 Cliente Google "XkyHold-wd" (19/11/2026): tipo Desktop app, criado pelo agente na consola do projeto `xkyhold` (Chrome "pulsar" do proprietário), com o "sim" dele. ID `780229057994-0583pofk3onqt68ijqlip77ahvi5julr.apps.googleusercontent.com`. O segredo só existe no `.env.local` (ignorado pelo git, permissões 600; copiado pelo proprietário, o agente não o viu). O `.env.example` mostra as variáveis `XKYHOLD_WD_CLIENT_ID` e `XKYHOLD_WD_CLIENT_SECRET`.
 
-Por fazer na Fase 0: (c) login Google a partir da VM com o cliente novo, refresh token no Gestor de Credenciais.
+Risco (c), login Google a partir do Windows (19/11/2026): **funciona.** Protótipo `crates/probe-oauth` (PKCE + redirecionamento para `127.0.0.1` numa porta livre, browser por omissão aberto com `rundll32 url.dll,FileProtocolHandler`, refresh token no Gestor de Credenciais por `keyring-core` + `windows-native-keyring-store`), corrido na sessão do ambiente de trabalho da VM por `scripts/vm/probe-oauth.ps1`, com o ID e o segredo copiados do `.env.local` para um ficheiro temporário que se apaga no fim. Login do proprietário no Edge da VM, com a conta pessoal. Visto pelo agente no registo do protótipo:
+
+- a Google concedeu só `drive.file`;
+- refresh token recebido, guardado no Gestor de Credenciais (entrada genérica `google-refresh:probe.xkyhold-wd`, vista com `cmdkey` na sessão do utilizador), lido de volta igual, e usado para obter um token novo válido por 1 hora;
+- o cliente novo vê a pasta `XkyHold` da raiz do Drive, criada por outro cliente do mesmo projeto. A pasta não tinha subpastas visíveis (as de teste do lx foram para o lixo a 14/11);
+- `--forget` apagou a entrada; `cmdkey` deixou de a mostrar.
+
+Notas: as credenciais guardadas na sessão interativa não aparecem numa sessão SSH (logon de rede), por isso a verificação foi feita na sessão do ambiente de trabalho. O token não foi revogado na Google: continua listado nas apps com acesso à conta até o proprietário o retirar ou até expirar por falta de uso.
+
+**Fase 0 concluída a 19/11/2026:** os quatro riscos têm resposta. Próxima: Fase 1, adenda Windows ao `FORMAT-v2.md` no repositório `xkyhold`, para aprovação do proprietário.
 
 
 ## 8. Questões em aberto

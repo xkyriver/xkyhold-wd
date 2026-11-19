@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["src-tauri", "crates/probe-files"]
+members = ["src-tauri", "crates/probe-files", "crates/probe-oauth"]
 
 [workspace.package]
 version = "0.1.0"
