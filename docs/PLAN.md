@@ -64,7 +64,7 @@ O lx já resolve tudo isto em Linux; o wd traz o mesmo para Windows.
 
 ### 4.1 Repositórios (W1)
 
-- **xkyhold-engine** (novo, 20/11/2026, só local por agora): workspace com `crates/core`, `crates/dest-local`, `crates/dest-drive`, `crates/secrets`, extraídos do xkyhold-lx 1.0.2 com o histórico (`git filter-branch` num clone), mais `scripts/cross-ts*`, CI (Linux; Windows entra na Fase 2), `README.md`, `CLAUDE.md`. Os 49 testes do lx passam lá. É aqui que se faz o trabalho multiplataforma. Criar o remoto no GitHub só com o "sim" do proprietário.
+- **xkyhold-engine** (novo, 20/11/2026; repositório **público** `xkyriver/xkyhold-engine` desde o mesmo dia): workspace com `crates/core`, `crates/dest-local`, `crates/dest-drive`, `crates/secrets`, extraídos do xkyhold-lx 1.0.2 com o histórico (`git filter-branch` num clone), mais `scripts/cross-ts*`, CI (Linux; Windows entra na Fase 2), `README.md`, `CLAUDE.md`. Os 49 testes do lx passam lá. É aqui que se faz o trabalho multiplataforma. 
 - **xkyhold-wd** (este): workspace Cargo com o binário da janela (`src-tauri`), o CLI (`xkyhold-wd-cli`), a `ui/` e o que for só de Windows (agendador, scan da pasta do utilizador, instalador). Depende dos crates do engine por `git = "…xkyhold-engine"`, `rev = "…"` fixa; em desenvolvimento local, `[patch]` para o checkout irmão.
 - **xkyhold-lx** (público): não é tocado. Continua com a sua cópia do motor (1.0.2). Passá-lo a depender do `xkyhold-engine` é uma decisão futura do proprietário; até lá, uma correção ao motor que interesse ao lx tem de ser levada lá à mão.
 
@@ -222,12 +222,14 @@ Notas: as credenciais guardadas na sessão interativa não aparecem numa sessão
 
 ### Fase 1 (20/11/2026, concluída)
 
-- Adenda `docs/FORMAT-v2-windows.md` no repositório `xkyhold`, ramo local `format-v2-windows` (num worktree à parte; commits `a9995c9` e `abb5890`, **não enviados nem juntados ao `main`**: isso é com o "sim" do proprietário). **Aprovada e congelada pelo proprietário a 20/11/2026.** Não é uma versão nova do formato: só campos opcionais (secção 4.7 da v2) e regras sobre os campos que um escritor Windows preenche.
+- Adenda `docs/FORMAT-v2-windows.md` no repositório `xkyhold`: commits `a9995c9` e `abb5890`, juntados ao `main` (avanço direto) e enviados para o GitHub a 20/11/2026 com o "sim" do proprietário (só documentação; sem deploy). **Aprovada e congelada pelo proprietário a 20/11/2026.** Não é uma versão nova do formato: só campos opcionais (secção 4.7 da v2) e regras sobre os campos que um escritor Windows preenche.
 - Lido no código dos leitores já lançados: o lx 1.0.x exige `uid`/`gid` dentro de `home` e os três campos de `change`; por isso o wd **não escreve `home`** (usa `origin`, novo) e preenche `change` com os mesmos três campos (`ChangeTime`, file ID). Ambos ignoram campos desconhecidos. Nenhum leitor lançado precisa de mudar.
 - O que a adenda fixa: `origin` (`os`, `path`, `user`, `sid`); `winAttrs`, `btime` + `btimeNanos`; junctions e ligações simbólicas como `symlink` com `link: file|dir|junction`; `stats.locked`, `stats.cloudOnly`, `stats.badNames`; `leftOut` com os padrões do Windows; regras de restauro no Windows (nomes impossíveis e maiúsculas/minúsculas com nome seguro e lista; `readonly` por último); fixture `golden-v2-windows-repo.json` a escrever uma vez pelo wd. A secção 4.3 deste plano fica substituída pela adenda.
 - Decisões do proprietário: **D1** nome UTF-16 inválido não se guarda, conta em `badNames` e **o utilizador é informado** de quais e porquê; **D2** na cópia só as contagens, a lista de caminhos fica no registo local da app; **D3** ligação simbólica que o Windows recusa não se restaura e **o utilizador é informado** (quais, para onde apontavam, e que ligar o Modo de Programador e restaurar de novo as traz); **D4** data de criação guardada e reposta.
 
-Próxima: Fase 2, motor multiplataforma no repositório `xkyhold-engine` (criado a 20/11/2026, decisão do proprietário: substitui o ramo no lx; o lx não é tocado).
+Repositórios GitHub criados a 20/11/2026 com o "sim" do proprietário: `xkyriver/xkyhold-engine` (público) e `xkyriver/xkyhold-wd` (**privado** até à release).
+
+Próxima: Fase 2, motor multiplataforma no repositório `xkyhold-engine` (decisão do proprietário: substitui o ramo no lx; o lx não é tocado).
 
 ## 8. Questões em aberto
 
