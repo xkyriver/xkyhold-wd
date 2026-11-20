@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fase 1 concluída a 20/11/2026 (adenda aprovada); próxima: Fase 2 (motor multiplataforma)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1 e 2 concluídas a 20/11/2026; próxima: Fase 3 (Drive, segredos e CLI)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -231,18 +231,32 @@ Repositórios GitHub criados a 20/11/2026 com o "sim" do proprietário: `xkyrive
 
 Próxima: Fase 2, motor multiplataforma no repositório `xkyhold-engine` (decisão do proprietário: substitui o ramo no lx; o lx não é tocado).
 
-### Fase 2 (em curso, 20/11/2026)
+### Fase 2 (20/11/2026, concluída)
 
-No `xkyhold-engine` (commits `1710b6a` e `43e66f3`, locais, ainda não enviados):
+No `xkyhold-engine` (commits `1710b6a` a `b76db92`):
 
-- Tipos: `Snapshot.origin`, `Stats.locked/cloudOnly/badNames`, `Meta.winAttrs/btime/btimeNanos`, `link` nas ligações. Os `golden` continuam iguais.
-- `backup/` e `restore/` divididos em parte comum + `unix.rs` (comportamento igual ao do lx) + `windows.rs`, segundo a adenda. `rustix`/`uzers` só em Unix.
-- **Exceção ao `unsafe`** (decisão do proprietário, 20/11/2026): só no módulo `win.rs`, com `windows-sys` da Microsoft, cada chamada comentada: `GetFileInformationByHandleEx` (`ChangeTime`, file ID, reparse tag), token do processo (elevação, SID), `SetFileAttributesW`, `DeviceIoControl` para criar junctions.
-- **Elevação** (decisão do proprietário, 20/11/2026): o wd recusa só quando foi aberto com "Executar como administrador" com o UAC ligado (`TokenElevationTypeFull`). Com o UAC desligado funciona. Continua a nunca pedir elevação. A VM de testes tem o UAC desligado (`EnableLUA = 0`, vem assim na imagem).
-- Exclusões por omissão do Windows e comparação sem maiúsculas/minúsculas; pasta local sem `fsync` de pastas no Windows.
-- Testes: 49 em Linux; **45 no Windows** (na VM, sessão do ambiente de trabalho, `scripts/vm/engine-tests.ps1`), incluindo 3 novos: ida e volta Windows (atributos, datas de modificação e criação, junction, ficheiro bloqueado contado e ausente, exclusões), cópia sem alterações que não relê nada, e nomes vindos de Linux (`CON`, `a:b.txt`, `ends.`, maiúsculas) restaurados com nome seguro e listados. CI do engine com `windows-latest` na matriz.
+- Tipos: `Snapshot.origin`, `Stats.locked/cloudOnly/badNames`, `Meta.winAttrs/btime/btimeNanos`, `link` nas ligações. Os `golden` antigos continuam iguais.
+- `backup/` e `restore/` com parte comum + `unix.rs` (comportamento igual ao do lx) + `windows.rs`, segundo a adenda. `rustix`/`uzers` só em Unix. Caminhos `\\?\` na cópia e no restauro (mais de 260 caracteres).
+- **Exceção ao `unsafe`** (decisão do proprietário, 20/11/2026): só em `win.rs`, com `windows-sys` da Microsoft e cada chamada comentada (`GetFileInformationByHandleEx`, token do processo, `SetFileAttributesW`, `DeviceIoControl` para junctions).
+- **Elevação** (decisão do proprietário, 20/11/2026): recusa só "Executar como administrador" com o UAC ligado (`TokenElevationTypeFull`); com o UAC desligado funciona; nunca pede elevação. A VM de testes tem o UAC desligado.
+- `secrets`: Gestor de Credenciais no Windows (serviço `xkyhold-wd`), Secret Service em Linux.
+- Exclusões por omissão do Windows, sem distinguir maiúsculas; pasta local sem `fsync` de pastas no Windows.
+- **`golden-v2-windows-repo.json` congelado** (gerado uma vez na VM com a pasta neutra `C:\Golden\ana` e o utilizador `ana`). A secção 9 da adenda foi clarificada no `xkyhold` (commit `fc5cae6`, por enviar): `cloudOnly` e `special` não se conseguem numa pasta temporária e são testados à parte contra o OneDrive e o `WindowsApps` reais (decisão do proprietário).
 
-Por fazer na Fase 2: backend do Gestor de Credenciais no `secrets`; `golden-v2-windows-repo.json`; ler `golden-v2-repo.json` (cópia Linux) no Windows; ida e volta cruzada (lx e motor TS leem uma cópia do wd).
+Visto pelo agente (testes a passar):
+
+| Onde | Resultado |
+|---|---|
+| Linux | 51 testes, incluindo ler e restaurar a fixture Windows |
+| Windows (VM, sessão do ambiente de trabalho) | 50 testes: ida e volta Windows (atributos, datas de modificação e criação, junction, bloqueado contado e ausente, exclusões), cópia sem alterações que não relê nada, nomes vindos de Linux renomeados e listados, caminho com mais de 300 caracteres, Gestor de Credenciais, fixture Linux restaurada no Windows, fixture Windows lida e restaurada |
+| Motor TypeScript da web | Lê a fixture Windows byte a byte, com palavra-passe e chave de recuperação (`scripts/cross-ts-windows.sh`) |
+| XkyHold-lx 1.0.2, tal como foi lançado | Abre e restaura a fixture Windows sem alterações (num worktree descartável do lx; nada ficou no lx) |
+| OneDrive real e `WindowsApps` da VM | Ficheiro "só online" contado e **não descarregado** (atributos iguais antes e depois); aliases de app contados como especiais. Pasta de teste posta na Reciclagem |
+| CI do engine | Linux e `windows-latest` verdes no commit `43e66f3` |
+
+Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970 (diferença de 100 ns, aceite no teste). Não testado: um disco de rede (`\\servidor\…`) como origem ou destino; ReFS (file ID de 128 bits real); EFS; Desduplicação de Dados.
+
+**Fase 2 concluída a 20/11/2026.** Próxima: Fase 3 (o wd passa a depender do engine por git; Drive e Gestor de Credenciais no CLI `xkyhold-wd-cli`).
 
 ## 8. Questões em aberto
 
