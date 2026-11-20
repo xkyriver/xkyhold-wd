@@ -30,7 +30,7 @@ Ler antes de começar: o checkpoint e o `docs/PLAN.md` do `../xkyhold-lx` (decis
 
 | # | Tema | Decisão | Data |
 |---|---|---|---|
-| W1 | Código | **Motor partilhado.** Os crates `core`, `dest-local`, `dest-drive` (e o que servir de `app`/`secrets`) do xkyhold-lx passam a ser multiplataforma (`cfg(windows)` / `cfg(unix)`); o xkyhold-wd depende deles por git com rev fixa. Um só motor: uma correção serve as duas apps | 18/11/2026 |
+| W1 | Código | **Motor partilhado, num repositório próprio `xkyhold-engine`** (crates `core`, `dest-local`, `dest-drive`, `secrets`, extraídos do xkyhold-lx 1.0.2 com o histórico). Passa a multiplataforma (`cfg(windows)` / `cfg(unix)`); o xkyhold-wd depende dele por git com rev fixa. O xkyhold-lx não é tocado: fica com a sua cópia congelada até o proprietário decidir passá-lo para o `xkyhold-engine`. Um só motor a evoluir | 18/11/2026; repositório próprio decidido a 20/11/2026 (substitui o ramo no lx) |
 | W2 | Âmbito | **Só `%USERPROFILE%`**, espelho da regra do lx | 18/11/2026 |
 | W3 | Ficheiros bloqueados | **Nunca VSS.** Nunca pede administrador; bloqueados são saltados e contados | 18/11/2026 |
 | W4 | Onde testar | **VM Windows 11 no Omarchy** (contentor `omarchy-windows`, imagem `dockurr/windows`: 4 CPUs, 8 GB, disco 64 GB; ecrã em `http://127.0.0.1:8006`, RDP em `127.0.0.1:3389`, pasta partilhada `/shared`). CI no GitHub Actions `windows-latest` a confirmar em W10 | 18/11/2026 |
@@ -64,11 +64,11 @@ O lx já resolve tudo isto em Linux; o wd traz o mesmo para Windows.
 
 ### 4.1 Repositórios (W1)
 
-- **xkyhold-lx** (público): os crates do motor passam a compilar e a testar em Windows. O trabalho faz-se num ramo próprio desse repositório; o CI do lx ganha uma linha `windows-latest` para os crates partilhados. Push e merge no lx só com o "sim" do proprietário, como sempre.
-- **xkyhold-wd** (este): workspace Cargo com o binário da janela (`src-tauri`), o CLI (`xkyhold-wd-cli`), a `ui/` e o que for só de Windows (agendador, scan da pasta do utilizador, instalador). Depende dos crates do lx por `git = "…xkyhold-lx"`, `rev = "…"` fixa; em desenvolvimento local, `[patch]` para o checkout irmão.
-- Se mais tarde se quiser extrair o motor para um repositório `xkyhold-engine`, faz-se sem mexer no formato. Não é preciso agora.
+- **xkyhold-engine** (novo, 20/11/2026, só local por agora): workspace com `crates/core`, `crates/dest-local`, `crates/dest-drive`, `crates/secrets`, extraídos do xkyhold-lx 1.0.2 com o histórico (`git filter-branch` num clone), mais `scripts/cross-ts*`, CI (Linux; Windows entra na Fase 2), `README.md`, `CLAUDE.md`. Os 49 testes do lx passam lá. É aqui que se faz o trabalho multiplataforma. Criar o remoto no GitHub só com o "sim" do proprietário.
+- **xkyhold-wd** (este): workspace Cargo com o binário da janela (`src-tauri`), o CLI (`xkyhold-wd-cli`), a `ui/` e o que for só de Windows (agendador, scan da pasta do utilizador, instalador). Depende dos crates do engine por `git = "…xkyhold-engine"`, `rev = "…"` fixa; em desenvolvimento local, `[patch]` para o checkout irmão.
+- **xkyhold-lx** (público): não é tocado. Continua com a sua cópia do motor (1.0.2). Passá-lo a depender do `xkyhold-engine` é uma decisão futura do proprietário; até lá, uma correção ao motor que interesse ao lx tem de ser levada lá à mão.
 
-Ponto de partida conhecido: em `xkyhold-lx/crates`, só `core/src/backup.rs` e `core/src/restore.rs` (e, no crate `app`, `lib.rs`, `scan.rs`, `update.rs`) usam APIs de Unix. `dest-local` e `dest-drive` não usam.
+Ponto de partida conhecido (no engine, como estava no lx): só `core/src/backup.rs` e `core/src/restore.rs` (e, no crate `app`, `lib.rs`, `scan.rs`, `update.rs`) usam APIs de Unix. `dest-local` e `dest-drive` não usam.
 
 ### 4.2 Motor em Windows
 
@@ -137,7 +137,7 @@ Instalador NSIS por utilizador (Tauri), sem assinatura Authenticode (W10), WebVi
 |---|---|---|
 | **0. Fundação e riscos** | `git init`, esqueleto, `CLAUDE.md`, `README.md`, `LICENSE`. Ferramentas na VM (Rust MSVC, Node, Build Tools) ou caminho de compilação cruzada. Protótipos: (a) janela Tauri abre na VM Windows 11 e chama o Rust; (b) os crates `core`/`dest-*` do lx compilam para `x86_64-pc-windows-msvc` (lista do que falta); (c) login Google com cliente Desktop a partir do Windows (browser da VM), refresh token no Gestor de Credenciais; (d) leitura de um ficheiro bloqueado e de um ficheiro "só online" do OneDrive, para confirmar como o Windows responde | Os quatro riscos com resposta escrita na secção 7 |
 | **1. Adenda ao formato** | Escrever a adenda Windows ao `FORMAT-v2.md`; rever com o proprietário | Adenda aprovada |
-| **2. Motor multiplataforma** | No ramo do lx: percurso, restauro seguro, `change`, locks e scan em Windows; CI do lx com `windows-latest`; `golden-v2-win`; testes cruzados | Cópia e restauro de uma árvore de teste com atributos, datas, junctions, nomes longos e nomes impossíveis dão o resultado esperado na VM; os testes do lx continuam verdes em Linux |
+| **2. Motor multiplataforma** | No `xkyhold-engine`: percurso, restauro seguro, `change`, locks e scan em Windows; CI com `windows-latest`; `golden-v2-windows-repo.json`; testes cruzados | Cópia e restauro de uma árvore de teste com atributos, datas, junctions, nomes longos e nomes impossíveis dão o resultado esperado na VM; os testes do engine continuam verdes em Linux |
 | **3. Google Drive e segredos** | Cliente OAuth (se W8 = próprio), Credential Manager, CLI `xkyhold-wd-cli` | Cópia e restauro reais no Drive pelo CLI na VM, incluindo uma cópia de mais de 1 hora |
 | **4. Interface** | Janela Tauri: Assistente, Início, Restaurar, Definições, EN + pt-PT, claro/escuro | Fluxo completo pela janela na VM, com o Drive e com pasta local |
 | **5. Automático** | Tarefa do Agendador, mutex, toasts, lembrete | Cópia automática vista a correr com a janela fechada e depois de reiniciar a VM |
@@ -149,7 +149,7 @@ Instalador NSIS por utilizador (Tauri), sem assinatura Authenticode (W10), WebVi
 As do lx, sem exceção (secção 6 do `xkyhold-lx/docs/PLAN.md` e secção 3 do checkpoint), mais:
 
 - **A VM é para testes:** nada de contas ou dados reais do proprietário lá dentro, exceto o login Google que ele próprio fizer. Os repositórios de teste no Drive chamam-se `XkyHold-wd test…`.
-- **O repositório do lx é público e está lançado:** as mudanças ao motor vão num ramo; nenhuma muda o comportamento do lx sem testes verdes em Linux e sem o "sim" do proprietário para o merge e o push.
+- **O motor vive no `xkyhold-engine`:** o repositório do lx (público, lançado) não é tocado neste projeto. Os testes do engine têm de continuar verdes em Linux e em Windows.
 - Passos que dependem do proprietário (login na VM, diálogos do Windows, palavras-passe): um de cada vez, com aviso antes.
 
 ## 7. Registo do estado
@@ -227,7 +227,7 @@ Notas: as credenciais guardadas na sessão interativa não aparecem numa sessão
 - O que a adenda fixa: `origin` (`os`, `path`, `user`, `sid`); `winAttrs`, `btime` + `btimeNanos`; junctions e ligações simbólicas como `symlink` com `link: file|dir|junction`; `stats.locked`, `stats.cloudOnly`, `stats.badNames`; `leftOut` com os padrões do Windows; regras de restauro no Windows (nomes impossíveis e maiúsculas/minúsculas com nome seguro e lista; `readonly` por último); fixture `golden-v2-windows-repo.json` a escrever uma vez pelo wd. A secção 4.3 deste plano fica substituída pela adenda.
 - Decisões do proprietário: **D1** nome UTF-16 inválido não se guarda, conta em `badNames` e **o utilizador é informado** de quais e porquê; **D2** na cópia só as contagens, a lista de caminhos fica no registo local da app; **D3** ligação simbólica que o Windows recusa não se restaura e **o utilizador é informado** (quais, para onde apontavam, e que ligar o Modo de Programador e restaurar de novo as traz); **D4** data de criação guardada e reposta.
 
-Próxima: Fase 2, motor multiplataforma num ramo do repositório público `xkyhold-lx` (criar o ramo e, mais tarde, o merge e o push precisam do "sim" do proprietário).
+Próxima: Fase 2, motor multiplataforma no repositório `xkyhold-engine` (criado a 20/11/2026, decisão do proprietário: substitui o ramo no lx; o lx não é tocado).
 
 ## 8. Questões em aberto
 

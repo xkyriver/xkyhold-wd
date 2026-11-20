@@ -3,11 +3,12 @@
 Windows desktop app in the XkyHold family: a full encrypted backup of
 `%USERPROFILE%` (or parts of it) to the user's Google Drive or a local
 folder. Plan, decisions W1–W11, phases and state log: `docs/PLAN.md`
-(Portuguese). The engine is shared with XkyHold-lx (decision W1): its
-crates are made cross-platform on a branch of that repository and this one
-depends on them by git revision. The repository format lives in the
-XkyHold repository (`docs/FORMAT.md`, `docs/FORMAT-v2.md`); change the
-spec first, then the code.
+(Portuguese). The engine lives in its own repository, XkyHold engine
+(decision W1): its crates are made cross-platform there and this one
+depends on them by git revision. The XkyHold-lx repository is not
+touched. The repository format lives in the XkyHold repository
+(`docs/FORMAT.md`, `docs/FORMAT-v2.md`, `docs/FORMAT-v2-windows.md`);
+change the spec first, then the code.
 
 ## Hard rules
 
@@ -27,8 +28,8 @@ spec first, then the code.
   without an explicit request.
 - Automatic backup is opt-in (a per-user Task Scheduler task); the default
   is a reminder.
-- Changes to the shared engine must keep XkyHold-lx's tests green on Linux;
-  merging or pushing in the XkyHold-lx repository needs the owner's yes.
+- Changes to the engine must keep its tests green on Linux and Windows.
+  Creating remotes and pushing need the owner's yes.
 
 ## Conventions
 
