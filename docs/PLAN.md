@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fase 1 em curso: adenda escrita, à espera de aprovação**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fase 1 concluída a 20/11/2026 (adenda aprovada); próxima: Fase 2 (motor multiplataforma)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -80,6 +80,8 @@ Ponto de partida conhecido: em `xkyhold-lx/crates`, só `core/src/backup.rs` e `
 - **Locks locais:** mutex nomeado (`Local\xkyhold-wd`) em vez de `flock`.
 
 ### 4.3 Formato (W6)
+
+> Substituída pela adenda aprovada `docs/FORMAT-v2-windows.md` do repositório `xkyhold` (Fase 1, 20/11/2026). O texto abaixo é a direção inicial.
 
 A especificação escreve-se antes do código, como adenda ao `FORMAT-v2.md` no repositório `xkyhold`, e o proprietário aprova-a. Direção:
 
@@ -218,11 +220,14 @@ Notas: as credenciais guardadas na sessão interativa não aparecem numa sessão
 **Fase 0 concluída a 19/11/2026:** os quatro riscos têm resposta. Próxima: Fase 1, adenda Windows ao `FORMAT-v2.md` no repositório `xkyhold`, para aprovação do proprietário.
 
 
-### Fase 1 (em curso, 20/11/2026)
+### Fase 1 (20/11/2026, concluída)
 
-- Rascunho da adenda escrito: `docs/FORMAT-v2-windows.md` no repositório `xkyhold`, ramo local `format-v2-windows` (num worktree à parte; commit não enviado). Não é uma versão nova do formato: só campos opcionais (secção 4.7 da v2) e regras sobre os campos que um escritor Windows preenche.
-- Lido no código dos leitores já lançados: o lx 1.0.x exige `uid`/`gid` dentro de `home` e os três campos de `change`; por isso o wd **não escreve `home`** (usa `origin`, novo) e preenche `change` com os mesmos três campos (`ChangeTime`, file ID). Ambos ignoram campos desconhecidos.
-- À espera da aprovação do proprietário, com quatro decisões (D1–D4, secção 10 da adenda).
+- Adenda `docs/FORMAT-v2-windows.md` no repositório `xkyhold`, ramo local `format-v2-windows` (num worktree à parte; commits `a9995c9` e `abb5890`, **não enviados nem juntados ao `main`**: isso é com o "sim" do proprietário). **Aprovada e congelada pelo proprietário a 20/11/2026.** Não é uma versão nova do formato: só campos opcionais (secção 4.7 da v2) e regras sobre os campos que um escritor Windows preenche.
+- Lido no código dos leitores já lançados: o lx 1.0.x exige `uid`/`gid` dentro de `home` e os três campos de `change`; por isso o wd **não escreve `home`** (usa `origin`, novo) e preenche `change` com os mesmos três campos (`ChangeTime`, file ID). Ambos ignoram campos desconhecidos. Nenhum leitor lançado precisa de mudar.
+- O que a adenda fixa: `origin` (`os`, `path`, `user`, `sid`); `winAttrs`, `btime` + `btimeNanos`; junctions e ligações simbólicas como `symlink` com `link: file|dir|junction`; `stats.locked`, `stats.cloudOnly`, `stats.badNames`; `leftOut` com os padrões do Windows; regras de restauro no Windows (nomes impossíveis e maiúsculas/minúsculas com nome seguro e lista; `readonly` por último); fixture `golden-v2-windows-repo.json` a escrever uma vez pelo wd. A secção 4.3 deste plano fica substituída pela adenda.
+- Decisões do proprietário: **D1** nome UTF-16 inválido não se guarda, conta em `badNames` e **o utilizador é informado** de quais e porquê; **D2** na cópia só as contagens, a lista de caminhos fica no registo local da app; **D3** ligação simbólica que o Windows recusa não se restaura e **o utilizador é informado** (quais, para onde apontavam, e que ligar o Modo de Programador e restaurar de novo as traz); **D4** data de criação guardada e reposta.
+
+Próxima: Fase 2, motor multiplataforma num ramo do repositório público `xkyhold-lx` (criar o ramo e, mais tarde, o merge e o push precisam do "sim" do proprietário).
 
 ## 8. Questões em aberto
 
