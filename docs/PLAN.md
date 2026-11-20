@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1 e 2 concluídas a 20/11/2026; próxima: Fase 3 (Drive, segredos e CLI)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026; próxima: Fase 4 (interface)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -258,12 +258,15 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 
 **Fase 2 concluída a 20/11/2026.** Próxima: Fase 3 (o wd passa a depender do engine por git; Drive e Gestor de Credenciais no CLI `xkyhold-wd-cli`).
 
-### Fase 3 (em curso, 20/11/2026)
+### Fase 3 (20/11/2026, concluída)
 
 - O wd usa os crates do engine por git (`xkyhold-engine` `b76db92`).
 - `crates/app` (`xkyhold-wd-app`, o equivalente Windows do `xkyhold-app` do lx): definições em `%APPDATA%\xkyhold-wd\config.toml`; cache, registo (`xkyhold-wd.log`), lock local (`backup.lock`, `File::try_lock`) e a lista dos itens não guardados da última cópia (`last-backup-not-stored.txt`, decisão D2) em `%LOCALAPPDATA%\xkyhold-wd`; Gestor de Credenciais; cliente Google "XkyHold-wd" embutido na compilação (`XKYHOLD_WD_CLIENT_*`); cópia anterior procurada por computador e `origin.path`.
 - `crates/cli` (`xkyhold-wd-cli`): os comandos do lx (sem `--cross-mount` nem `check-release`). No fim da cópia diz quantos itens ficaram bloqueados, "só online" ou com nome inválido e onde está a lista; no fim do restauro lista os renomeados (D1) e as ligações recusadas, com o caminho do Modo de Programador (D3).
 - Visto na VM: CLI de ponta a ponta numa pasta local (`init`, `backup --only`, `snapshots`, `ls`, `restore`, `check --full`, `status`). Login Google pelo CLI na sessão do ambiente de trabalho, feito pelo proprietário no Edge; refresh token no Gestor de Credenciais. **Drive real, `XkyHold-wd test 1`:** criar, lembrar a chave, cópia de 12,6 MB aberta só com a chave do Gestor de Credenciais, restauro com conteúdo, data e "só de leitura" iguais, `check --full` sem problemas.
+- **Cópia longa, `XkyHold-wd test 2`:** 40 ficheiros (419,4 MB) com `--limit-upload 100`, 4196 s (70 min). O token de acesso renovou-se sozinho a meio da cópia (às 23:03 UTC; o anterior tinha vencido) e outra vez no `check` a seguir, que terminou sem problemas (31 packs, 123 pedaços).
+
+**Fase 3 concluída a 20/11/2026.** Próxima: Fase 4 (janela Tauri com o Drive e com pasta local).
 
 ## 8. Questões em aberto
 
