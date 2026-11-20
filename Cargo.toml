@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
-members = ["src-tauri", "crates/probe-files", "crates/probe-oauth"]
+members = ["src-tauri", "crates/app", "crates/cli", "crates/probe-files", "crates/probe-oauth"]
+default-members = ["crates/app", "crates/cli"]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,14 +11,39 @@ rust-version = "1.100"
 publish = false
 
 [workspace.dependencies]
+# The shared engine (decision W1), at a fixed revision.
+xkyhold-core = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "b76db92" }
+xkyhold-dest-local = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "b76db92" }
+xkyhold-dest-drive = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "b76db92" }
+xkyhold-secrets = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "b76db92" }
+xkyhold-wd-app = { path = "crates/app" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+toml = "0.9"
+zeroize = { version = "1", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
+rpassword = "7"
+tempfile = "3"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
+
+# Crypto is slow unoptimised (Argon2id with 64 MiB); optimise it in dev too.
+[profile.dev.package.argon2]
+opt-level = 3
+[profile.dev.package.blake2]
+opt-level = 3
+[profile.dev.package.aes-gcm]
+opt-level = 3
+[profile.dev.package.aes]
+opt-level = 3
+[profile.dev.package.ghash]
+opt-level = 3
+[profile.dev.package.sha2]
+opt-level = 3
 
 [profile.release]
 lto = true
