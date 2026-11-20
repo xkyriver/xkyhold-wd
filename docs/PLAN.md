@@ -258,6 +258,13 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 
 **Fase 2 concluída a 20/11/2026.** Próxima: Fase 3 (o wd passa a depender do engine por git; Drive e Gestor de Credenciais no CLI `xkyhold-wd-cli`).
 
+### Fase 3 (em curso, 20/11/2026)
+
+- O wd usa os crates do engine por git (`xkyhold-engine` `b76db92`).
+- `crates/app` (`xkyhold-wd-app`, o equivalente Windows do `xkyhold-app` do lx): definições em `%APPDATA%\xkyhold-wd\config.toml`; cache, registo (`xkyhold-wd.log`), lock local (`backup.lock`, `File::try_lock`) e a lista dos itens não guardados da última cópia (`last-backup-not-stored.txt`, decisão D2) em `%LOCALAPPDATA%\xkyhold-wd`; Gestor de Credenciais; cliente Google "XkyHold-wd" embutido na compilação (`XKYHOLD_WD_CLIENT_*`); cópia anterior procurada por computador e `origin.path`.
+- `crates/cli` (`xkyhold-wd-cli`): os comandos do lx (sem `--cross-mount` nem `check-release`). No fim da cópia diz quantos itens ficaram bloqueados, "só online" ou com nome inválido e onde está a lista; no fim do restauro lista os renomeados (D1) e as ligações recusadas, com o caminho do Modo de Programador (D3).
+- Visto na VM: CLI de ponta a ponta numa pasta local (`init`, `backup --only`, `snapshots`, `ls`, `restore`, `check --full`, `status`). Login Google pelo CLI na sessão do ambiente de trabalho, feito pelo proprietário no Edge; refresh token no Gestor de Credenciais. **Drive real, `XkyHold-wd test 1`:** criar, lembrar a chave, cópia de 12,6 MB aberta só com a chave do Gestor de Credenciais, restauro com conteúdo, data e "só de leitura" iguais, `check --full` sem problemas.
+
 ## 8. Questões em aberto
 
 Nenhuma de momento. W5–W11 aprovadas a 18/11/2026.
