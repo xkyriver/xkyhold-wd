@@ -231,6 +231,19 @@ Repositórios GitHub criados a 20/11/2026 com o "sim" do proprietário: `xkyrive
 
 Próxima: Fase 2, motor multiplataforma no repositório `xkyhold-engine` (decisão do proprietário: substitui o ramo no lx; o lx não é tocado).
 
+### Fase 2 (em curso, 20/11/2026)
+
+No `xkyhold-engine` (commits `1710b6a` e `43e66f3`, locais, ainda não enviados):
+
+- Tipos: `Snapshot.origin`, `Stats.locked/cloudOnly/badNames`, `Meta.winAttrs/btime/btimeNanos`, `link` nas ligações. Os `golden` continuam iguais.
+- `backup/` e `restore/` divididos em parte comum + `unix.rs` (comportamento igual ao do lx) + `windows.rs`, segundo a adenda. `rustix`/`uzers` só em Unix.
+- **Exceção ao `unsafe`** (decisão do proprietário, 20/11/2026): só no módulo `win.rs`, com `windows-sys` da Microsoft, cada chamada comentada: `GetFileInformationByHandleEx` (`ChangeTime`, file ID, reparse tag), token do processo (elevação, SID), `SetFileAttributesW`, `DeviceIoControl` para criar junctions.
+- **Elevação** (decisão do proprietário, 20/11/2026): o wd recusa só quando foi aberto com "Executar como administrador" com o UAC ligado (`TokenElevationTypeFull`). Com o UAC desligado funciona. Continua a nunca pedir elevação. A VM de testes tem o UAC desligado (`EnableLUA = 0`, vem assim na imagem).
+- Exclusões por omissão do Windows e comparação sem maiúsculas/minúsculas; pasta local sem `fsync` de pastas no Windows.
+- Testes: 49 em Linux; **45 no Windows** (na VM, sessão do ambiente de trabalho, `scripts/vm/engine-tests.ps1`), incluindo 3 novos: ida e volta Windows (atributos, datas de modificação e criação, junction, ficheiro bloqueado contado e ausente, exclusões), cópia sem alterações que não relê nada, e nomes vindos de Linux (`CON`, `a:b.txt`, `ends.`, maiúsculas) restaurados com nome seguro e listados. CI do engine com `windows-latest` na matriz.
+
+Por fazer na Fase 2: backend do Gestor de Credenciais no `secrets`; `golden-v2-windows-repo.json`; ler `golden-v2-repo.json` (cópia Linux) no Windows; ida e volta cruzada (lx e motor TS leem uma cópia do wd).
+
 ## 8. Questões em aberto
 
 Nenhuma de momento. W5–W11 aprovadas a 18/11/2026.
