@@ -122,7 +122,7 @@ A `ui/` do lx com os mesmos ecrãs (Assistente, Início, Restaurar, Definições
 
 ### 4.8 Cópia automática (W7)
 
-- Tarefa `\XkyHold\xkyhold-wd` no Agendador, do utilizador atual, "executar só quando o utilizador tem sessão iniciada", sem privilégios elevados, a cada hora e "executar logo que possível depois de um início falhado" (equivalente ao `Persistent=true`).
+- Tarefa `\XkyHold\xkyhold-wd-<utilizador>` no Agendador (o nome leva o utilizador do Windows: os nomes das tarefas são do computador inteiro; visto na Fase 7 com dois utilizadores), do utilizador atual, "executar só quando o utilizador tem sessão iniciada", sem privilégios elevados, a cada hora e "executar logo que possível depois de um início falhado" (equivalente ao `Persistent=true`).
 - Corre `xkyhold-wd.exe --scheduled` (subsistema Windows, sem janela de consola): cópia automática se em atraso, senão lembrete, como no lx.
 - Notificações Windows (toast) só em problemas, uma por dia.
 - Ao desinstalar, o instalador remove a tarefa.
@@ -314,6 +314,10 @@ Encontrado pelo caminho (sem alteração nesta fase):
 ### Fase 7 (em curso, 21/11/2026)
 
 Decisões do proprietário (21/11/2026): o repositório `xkyhold-wd` passa a **público** na release (como o lx e o engine; o "sim" para o ato concreto fica para essa altura); a release leva o instalador NSIS e `SHA256SUMS` (sem `.sig` nem `latest.json`, que vêm com um atualizador numa versão futura; ajusta a secção 4.9); a prova real vai para o **Google Drive** (`XkyHold-wd real test`, para o lixo depois); o utilizador Windows padrão para o restauro limpo é criado pelo proprietário.
+
+Melhorias pendentes vistas na Fase 7 (21/11/2026), sem data:
+- **Restaurar, lista longa:** o botão "Restaurar N" só aparece no fim da lista (com a pasta de utilizador inteira, são dezenas de linhas). Proposta: barra de ações fixa no fundo do cartão, com "Voltar", o destino em resumo e "Restaurar N", sempre visível. Sugestão do proprietário; o lx tem o mesmo ecrã.
+- **Junctions de sistema do perfil** ("Application Data", "Cookies", "My Documents"…): numa restauração para pasta nova noutro utilizador são recriadas a apontar para o perfil original (inofensivo: sem acesso e nunca seguidas). Ver se convém deixá-las de fora nesse caso.
 
 ## 8. Questões em aberto
 

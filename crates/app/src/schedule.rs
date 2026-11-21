@@ -20,10 +20,33 @@ use xkyhold_core::{Error, Result};
 
 use crate::{BackupDone, LastBackup, Settings, human, not_stored};
 
-/// The task, in its own folder; when Windows does not let this user make
-/// the folder, at the top level.
-pub const TASK: &str = r"\XkyHold\xkyhold-wd";
-pub const TASK_FALLBACK: &str = r"\XkyHold-wd";
+/// The task's names for the user `user`: in its own folder, and at the top
+/// level when Windows does not let this user make or use the folder. Task
+/// names belong to the whole computer, so each user's task carries the user
+/// name (two people on one computer each have their own).
+pub fn task_names(user: &str) -> [String; 2] {
+    // Characters a task name cannot hold become `_` (Windows user names
+    // rarely have them).
+    let user: String = user
+        .chars()
+        .map(|c| {
+            if c < ' ' || "\\/:*?\"<>|".contains(c) {
+                '_'
+            } else {
+                c
+            }
+        })
+        .collect();
+    [
+        format!(r"\XkyHold\xkyhold-wd-{user}"),
+        format!(r"\XkyHold-wd-{user}"),
+    ]
+}
+
+/// This user's task names.
+fn names() -> [String; 2] {
+    task_names(&std::env::var("USERNAME").unwrap_or_else(|_| "user".into()))
+}
 
 /// The name toasts show, registered for this user (`HKCU`).
 pub const APP_ID: &str = "com.xkyriver.xkyhold-wd";
@@ -507,9 +530,9 @@ fn exists(name: &str) -> bool {
     schtasks(&["/Query", "/TN", name]).is_ok_and(|o| o.status.success())
 }
 
-/// The name the task is registered under, if it is.
-pub fn installed() -> Option<&'static str> {
-    [TASK, TASK_FALLBACK].into_iter().find(|n| exists(n))
+/// The name this user's task is registered under, if it is.
+pub fn installed() -> Option<String> {
+    names().into_iter().find(|n| exists(n))
 }
 
 /// The program the task runs: this one.
@@ -544,9 +567,9 @@ fn unregister_app_id() {
 }
 
 fn remove_task() {
-    for name in [TASK, TASK_FALLBACK] {
-        if exists(name) {
-            let _ = schtasks(&["/Delete", "/TN", name, "/F"]);
+    for name in names() {
+        if exists(&name) {
+            let _ = schtasks(&["/Delete", "/TN", &name, "/F"]);
         }
     }
 }
@@ -579,19 +602,22 @@ pub fn sync_task(s: &Settings) -> Result<()> {
     write_utf16(&file, &task_xml(&program()?, &start))?;
     let file_arg = file.display().to_string();
     let create = |name: &str| schtasks(&["/Create", "/TN", name, "/XML", &file_arg, "/F"]);
-    let out = create(TASK)?;
+    let [task, fallback] = names();
+    let out = create(&task)?;
     let result = if out.status.success() {
         // Only one of the two names at a time.
-        if exists(TASK_FALLBACK) {
-            let _ = schtasks(&["/Delete", "/TN", TASK_FALLBACK, "/F"]);
+        if exists(&fallback) {
+            let _ = schtasks(&["/Delete", "/TN", &fallback, "/F"]);
         }
-        crate::log(&format!("scheduled task {TASK} registered, hourly from {start}"));
+        crate::log(&format!(
+            "scheduled task {task} registered, hourly from {start}"
+        ));
         Ok(())
     } else {
         let first = String::from_utf8_lossy(&out.stderr).trim().to_owned();
-        let out = create(TASK_FALLBACK)?;
+        let out = create(&fallback)?;
         if out.status.success() {
-            crate::log(&format!("task registered as {TASK_FALLBACK}: {first}"));
+            crate::log(&format!("task registered as {fallback}: {first}"));
             Ok(())
         } else {
             Err(Error::Usage(format!(
@@ -679,6 +705,19 @@ mod tests {
         ] {
             assert!(x.contains(must), "{must}");
         }
+    }
+
+    #[test]
+    fn one_task_per_user() {
+        assert_eq!(
+            task_names("ana"),
+            [r"\XkyHold\xkyhold-wd-ana", r"\XkyHold-wd-ana"]
+        );
+        assert_eq!(
+            task_names("João Silva")[0],
+            r"\XkyHold\xkyhold-wd-João Silva"
+        );
+        assert_eq!(task_names("a/b:c")[1], r"\XkyHold-wd-a_b_c");
     }
 
     #[test]

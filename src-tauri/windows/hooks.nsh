@@ -5,9 +5,11 @@
 ; user may install again; "Remove from this computer" in Settings clears them.
 
 !macro NSIS_HOOK_PREUNINSTALL
-  nsExec::Exec 'schtasks.exe /Delete /TN "\XkyHold\xkyhold-wd" /F'
+  ; Task names belong to the whole computer: each user's carries the user name.
+  ReadEnvStr $1 USERNAME
+  nsExec::Exec 'schtasks.exe /Delete /TN "\XkyHold\xkyhold-wd-$1" /F'
   Pop $0
-  nsExec::Exec 'schtasks.exe /Delete /TN "\XkyHold-wd" /F'
+  nsExec::Exec 'schtasks.exe /Delete /TN "\XkyHold-wd-$1" /F'
   Pop $0
   DeleteRegKey HKCU "Software\Classes\AppUserModelId\com.xkyriver.xkyhold-wd"
 !macroend
