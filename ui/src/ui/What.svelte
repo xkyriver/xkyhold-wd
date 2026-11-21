@@ -17,12 +17,12 @@
     'rust-target': 'Rust build folders (target, next to Cargo.toml)',
     'maven-target': 'Maven build folders (target, next to pom.xml)',
     'python-venv': 'Python environments (.venv)',
-    'browser-caches': 'Browser caches',
-    'flatpak-caches': 'Flatpak app caches',
-    containers: 'Container images',
-    steam: 'Steam games',
-    'vm-images': 'Virtual machine disks',
-    'windows-caches': 'App caches (AppData)',
+    'browser-caches': 'Browser caches (Chrome, Edge, Firefox)',
+    'app-caches': 'App caches (AppData)',
+    containers: 'Docker data',
+    'wsl-disks': 'WSL disks (ext4.vhdx)',
+    steam: 'Steam libraries',
+    'vm-images': 'Virtual machine disks (.vhdx, .vdi, .vmdk)',
     downloads: 'The Downloads folder',
   }
 

@@ -209,11 +209,6 @@ export const ptPT: Record<string, string> = {
   'Rust build folders (target, next to Cargo.toml)': 'Pastas de compilação Rust (target, ao lado de Cargo.toml)',
   'Maven build folders (target, next to pom.xml)': 'Pastas de compilação Maven (target, ao lado de pom.xml)',
   'Python environments (.venv)': 'Ambientes Python (.venv)',
-  'Browser caches': 'Caches dos navegadores',
-  'Flatpak app caches': 'Caches das apps Flatpak',
-  'Container images': 'Imagens de contentores',
-  'Steam games': 'Jogos Steam',
-  'Virtual machine disks': 'Discos de máquinas virtuais',
   'The Downloads folder': 'A pasta Transferências',
   'Choose a folder outside your user folder, such as one on another disk.': 'Escolhe uma pasta fora da tua pasta de utilizador, por exemplo noutro disco.',
   'A backup is already running on this computer. Wait for it to finish.': 'Já está a decorrer uma cópia neste computador. Espera que termine.',
@@ -287,4 +282,14 @@ export const ptPT: Record<string, string> = {
     'As cópias automáticas precisam do Gestor de Credenciais do Windows, que não pode ser usado agora.',
   'XkyHold-wd is busy with another task. Try again when it finishes.':
     'O XkyHold-wd está ocupado com outra tarefa. Tenta outra vez quando terminar.',
+  'Browser caches (Chrome, Edge, Firefox)':
+    'Caches dos navegadores (Chrome, Edge, Firefox)',
+  'Docker data':
+    'Dados do Docker',
+  'WSL disks (ext4.vhdx)':
+    'Discos do WSL (ext4.vhdx)',
+  'Steam libraries':
+    'Bibliotecas do Steam',
+  'Virtual machine disks (.vhdx, .vdi, .vmdk)':
+    'Discos de máquinas virtuais (.vhdx, .vdi, .vmdk)',
 }
