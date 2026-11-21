@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fase 4 a 21/11/2026; próxima: Fase 5 (automático)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4 e 5 a 21/11/2026; próxima: Fase 6 (leitura cruzada)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -280,6 +280,18 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 - Por ver: o seletor de pastas do sistema, os avisos D1/D3 com casos reais, ecrãs com escala acima de 100 %.
 
 **Fase 4 concluída a 21/11/2026.** Próxima: Fase 5 (Agendador de Tarefas, toasts, lembrete com a janela fechada). As sugestões a deixar de fora próprias do Windows (secção 4.6) estão no `xkyhold-engine` `8b729e9` (51 testes em Linux e 51 no Windows); vistas na janela com o tamanho real (caches do Edge 10 MB). O wd usa essa revisão desde 21/11/2026 (9 testes do wd passam no Windows).
+
+### Fase 5 (21/11/2026, concluída)
+
+- `crates/app/src/schedule.rs`: a decisão de cada hora (cópia automática se estiver em atraso, senão lembrete, como no lx) e a tarefa do Agendador, registada com `schtasks.exe /Create /XML` (sem dependências novas nem `unsafe`). Tarefa `\XkyHold\xkyhold-wd` (se o Windows não deixar criar a pasta, `\XkyHold-wd`): só com a sessão iniciada (`InteractiveToken`), privilégios mínimos (`LeastPrivilege`), a cada hora com 5 min aleatórios e 10 min depois do início de sessão, "logo que possível depois de um início falhado", também com bateria, sem limite de tempo, nunca duas ao mesmo tempo, prioridade abaixo do normal. Só existe enquanto houver cópia configurada e cópias automáticas ou lembretes ligados.
+- `xkyhold-wd.exe --scheduled` corre sem janela. As notificações são toasts mostrados por um PowerShell escondido, com o nome "XkyHold-wd" registado em `HKCU\Software\Classes\AppUserModelId` (sem elevação); problemas e itens deixados de fora no máximo uma vez por dia.
+- A janela mantém a tarefa a par das definições (ao abrir, ao ligar uma cópia, ao mudar lembretes ou cópias automáticas, ao esquecer a chave, ao remover o computador) e só aceita cópias automáticas com a chave no Gestor de Credenciais.
+- Visto na VM: tarefa criada pelo assistente ("cópia automática todos os dias"); com a janela fechada, a tarefa fez a cópia sozinha; lembrete em pt-PT visto como toast "XkyHold-wd"; **depois de reiniciar a VM**, a tarefa correu 10 min após o início de sessão e fez a cópia em atraso (resultado 0).
+- Corrigido no teste: a hora de início ia em UTC sem `Z` e o Windows lia-a como hora local (8 h de atraso na VM).
+- Armadilha da VM: o relógio está 8 h adiantado e o `cargo` não recompilava crates copiados por `tar`; extrair com `tar -xmzf`. Os resultados anteriores na VM foram revistos e mantêm-se.
+- Por ver: um utilizador Windows padrão (sem administrador) a criar a pasta `\XkyHold` no Agendador (a VM corre como administrador com UAC desligado); o build de release (sem consola); o instalador a remover a tarefa ao desinstalar (Fase 7).
+
+**Fase 5 concluída a 21/11/2026.** Próxima: Fase 6 (leitura cruzada com a web e o lx).
 
 ## 8. Questões em aberto
 
