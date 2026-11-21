@@ -9,7 +9,16 @@
   import { t } from '../lib/i18n.svelte'
   import Tree from './Tree.svelte'
 
-  let { what, change }: { what: What; change: (what: What) => void } = $props()
+  let {
+    what,
+    change,
+    incomplete = $bindable(false),
+  }: {
+    what: What
+    change: (what: What) => void
+    /** "Only some folders" with none chosen yet: not a choice to save. */
+    incomplete?: boolean
+  } = $props()
 
   const PRESET_LABELS: Record<string, string> = {
     // i18n-keys
@@ -39,6 +48,9 @@
 
   let choosingOnly = $state(false)
   const only = $derived(what.only.length > 0 || choosingOnly)
+  $effect(() => {
+    incomplete = only && what.only.length === 0
+  })
   // Only matters when the whole user folder is saved.
   const cloud = $derived(only ? [] : top.filter((f) => f.cloud && !what.leave_out.includes(f.name)))
 
@@ -85,7 +97,9 @@
 
   {#if only}
     <p class="small muted">
-      {what.only.length === 0 ? t('No folders chosen yet.') : t('Saving: {list}', { list: shown(what.only) })}
+      {what.only.length === 0
+        ? t('Choose at least one folder. Until you do, the whole user folder is saved.')
+        : t('Saving: {list}', { list: shown(what.only) })}
     </p>
   {:else}
     <p class="small muted">

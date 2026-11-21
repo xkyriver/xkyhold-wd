@@ -21,7 +21,6 @@ export const ptPT: Record<string, string> = {
   'Open {name}': 'Abrir {name}',
   'Files already in earlier backups stay there until those backups are removed.': 'Os ficheiros que já estão em cópias anteriores ficam lá até essas cópias serem removidas.',
   Done: 'Concluído',
-  'No folders chosen yet.': 'Ainda não escolheste nenhuma pasta.',
   'Left out: {list}': 'De fora: {list}',
   'Leave out…': 'Deixar de fora…',
   'A backup with this name already exists. Choose another name.': 'Já existe uma cópia de segurança com este nome. Escolhe outro nome.',
@@ -294,4 +293,6 @@ export const ptPT: Record<string, string> = {
     'Discos de máquinas virtuais (.vhdx, .vdi, .vmdk)',
   'Check what this computer saves from now on. Earlier backups stay as they are.':
     'Confirma o que este computador guarda daqui em diante. As cópias anteriores ficam como estão.',
+  'Choose at least one folder. Until you do, the whole user folder is saved.':
+    'Escolhe pelo menos uma pasta. Até lá, é guardada a pasta de utilizador inteira.',
 }

@@ -38,6 +38,8 @@
   let remindDays = $state(1)
   /** Connected to a backup that already existed (not creating one). */
   let connected = $state(false)
+  /** "Only some folders" with none chosen: the wizard waits. */
+  let whatIncomplete = $state(false)
   let automatic = $state(false)
 
   $effect(() => {
@@ -270,16 +272,16 @@
   {:else if step === 'what' && connected}
     <h1>{t('What to save')}</h1>
     <p class="muted">{t('Check what this computer saves from now on. Earlier backups stay as they are.')}</p>
-    <What_ {what} change={(w) => (what = w)} />
+    <What_ {what} change={(w) => (what = w)} bind:incomplete={whatIncomplete} />
     <div class="row end">
-      <button class="btn primary" onclick={confirmWhat}>{t('Finish')}</button>
+      <button class="btn primary" onclick={confirmWhat} disabled={whatIncomplete}>{t('Finish')}</button>
     </div>
   {:else if step === 'what'}
     <h1>{t('What to save')}</h1>
-    <What_ {what} change={(w) => (what = w)} />
+    <What_ {what} change={(w) => (what = w)} bind:incomplete={whatIncomplete} />
     <div class="row between">
       <button class="btn" onclick={() => (step = kind === 'drive' ? 'choose' : 'folder')}>{t('Back')}</button>
-      <button class="btn primary" onclick={() => (step = 'password')}>{t('Continue')}</button>
+      <button class="btn primary" onclick={() => (step = 'password')} disabled={whatIncomplete}>{t('Continue')}</button>
     </div>
   {:else if step === 'password'}
     <h1>{t('Protect your backup')}</h1>

@@ -12,10 +12,10 @@ publish = false
 
 [workspace.dependencies]
 # The shared engine (decision W1), at a fixed revision.
-xkyhold-core = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "8b729e9" }
-xkyhold-dest-local = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "8b729e9" }
-xkyhold-dest-drive = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "8b729e9" }
-xkyhold-secrets = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "8b729e9" }
+xkyhold-core = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "f3781f7" }
+xkyhold-dest-local = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "f3781f7" }
+xkyhold-dest-drive = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "f3781f7" }
+xkyhold-secrets = { git = "https://github.com/xkyriver/xkyhold-engine", rev = "f3781f7" }
 xkyhold-wd-app = { path = "crates/app" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

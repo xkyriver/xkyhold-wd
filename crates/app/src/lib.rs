@@ -580,6 +580,11 @@ fn latest_of(repo: &Repo, device: &str, home: &Path) -> Result<Option<Snapshot>>
 /// over when this computer connects to it again.
 pub fn what_from_snapshot(snap: &Snapshot) -> What {
     let mut what = What::default();
+    // "Only some items" (FORMAT-v2-chosen.md); paths that are not text
+    // cannot be chosen in the settings and are left to the user.
+    if let Some(chosen) = snap.roots.first().and_then(|r| r.chosen.as_ref()) {
+        what.only = chosen.iter().filter_map(|c| c.path.clone()).collect();
+    }
     let Some(rules) = snap.roots.first().and_then(|r| r.left_out.as_ref()) else {
         return what;
     };
@@ -656,6 +661,46 @@ mod tests {
         assert!(inside_home(home, Path::new(r"C:\Windows")).is_err());
         assert!(inside_home(home, Path::new(r"C:\Users\anabel")).is_err());
         assert!(inside_home(home, Path::new(r"a\..\..\bob")).is_err());
+    }
+
+    #[test]
+    fn the_choice_comes_back_from_a_backup() {
+        use xkyhold_core::snapshot::{Chosen, Root, Rule, Source};
+        let rule = |kind: &str, path: Option<&str>| Rule {
+            kind: kind.into(),
+            id: None,
+            patterns: None,
+            path: path.map(String::from),
+            path_bytes: None,
+        };
+        let snap = Snapshot {
+            format: Some(2),
+            id: "a".into(),
+            time: "t".into(),
+            device: "d".into(),
+            home: None,
+            origin: None,
+            roots: vec![Root {
+                name: "home".into(),
+                tree: "x".into(),
+                source: Some(Source {
+                    kind: "home".into(),
+                    path: String::new(),
+                }),
+                meta: None,
+                left_out: Some(vec![rule("path", Some("Documents/Old"))]),
+                chosen: Some(vec![
+                    Chosen::new(b"Documents"),
+                    Chosen::new(b"Desktop"),
+                    Chosen::new(b"bad\xff"),
+                ]),
+            }],
+            stats: Default::default(),
+            parent: None,
+        };
+        let what = what_from_snapshot(&snap);
+        assert_eq!(what.only, ["Documents", "Desktop"]);
+        assert_eq!(what.leave_out, ["Documents/Old"]);
     }
 
     #[test]
