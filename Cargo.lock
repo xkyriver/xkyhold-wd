@@ -5625,7 +5625,7 @@ dependencies = [
 
 [[package]]
 name = "xkyhold-wd"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -5640,7 +5640,7 @@ dependencies = [
 
 [[package]]
 name = "xkyhold-wd-app"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "serde",
  "tempfile",
@@ -5654,7 +5654,7 @@ dependencies = [
 
 [[package]]
 name = "xkyhold-wd-cli"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "clap",
  "rpassword",
@@ -5666,11 +5666,11 @@ dependencies = [
 
 [[package]]
 name = "xkyhold-wd-probe-files"
-version = "0.1.0"
+version = "1.0.0"
 
 [[package]]
 name = "xkyhold-wd-probe-oauth"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "base64 0.23.1",
  "getrandom 0.4.3",

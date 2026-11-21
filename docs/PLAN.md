@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4, 5 e 6 a 21/11/2026; próxima: Fase 7 (prova real e release)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4, 5 e 6 a 21/11/2026; Fase 7 (prova real e release) em curso**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -310,6 +310,10 @@ Encontrado pelo caminho (sem alteração nesta fase):
 - No Drive ficam as cópias de teste `XkyHold-wd test 4` e `XkyHold-wd web test` (para o lixo com o sim do proprietário).
 
 **Fase 6 concluída a 21/11/2026.** Próxima: Fase 7 (prova real e release).
+
+### Fase 7 (em curso, 21/11/2026)
+
+Decisões do proprietário (21/11/2026): o repositório `xkyhold-wd` passa a **público** na release (como o lx e o engine; o "sim" para o ato concreto fica para essa altura); a release leva o instalador NSIS e `SHA256SUMS` (sem `.sig` nem `latest.json`, que vêm com um atualizador numa versão futura; ajusta a secção 4.9); a prova real vai para o **Google Drive** (`XkyHold-wd real test`, para o lixo depois); o utilizador Windows padrão para o restauro limpo é criado pelo proprietário.
 
 ## 8. Questões em aberto
 

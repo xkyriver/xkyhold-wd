@@ -34,12 +34,14 @@
       "icons/icon.ico"
     ],
     "publisher": "XKYRIVER",
-    "homepage": "https://xkyhold.xkyriver.com/",
+    "homepage": "https://xkyhold.xkyriver.com/windows/",
     "license": "AGPL-3.0-only",
     "licenseFile": "../LICENSE",
     "shortDescription": "Encrypted backup of your user folder",
+    "longDescription": "XkyHold-wd backs up your Windows user folder, or the parts you choose, to your Google Drive or to a folder such as an external disk. Everything is encrypted on your computer before it leaves it.",
     "windows": {
-      "nsis": { "installMode": "currentUser" }
+      "nsis": { "installMode": "currentUser", "installerHooks": "./windows/hooks.nsh" },
+      "webviewInstallMode": { "type": "downloadBootstrapper" }
     }
   }
 }
