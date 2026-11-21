@@ -53,6 +53,8 @@ export interface Status {
   running_here: boolean
   /** Automatic backups with the window closed (the Task Scheduler, Phase 5). */
   scheduler: boolean
+  /** The scheduled task is registered. */
+  task: boolean
   google_client: boolean
   /** The Credential Manager can be used. */
   keyring: boolean

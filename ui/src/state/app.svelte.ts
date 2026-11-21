@@ -102,8 +102,8 @@ export function explain(err: unknown): string {
       return t('A backup is already running on this computer. Wait for it to finish.')
     case 'needs-key':
       return t('Automatic backups need this computer to keep the key of your backup. Tick “Open this backup on this computer without the password” first.')
-    case 'no-scheduler':
-      return t('Automatic backups are not available in this version yet. XkyHold-wd reminds you instead.')
+    case 'scheduler':
+      return t('Windows did not let XkyHold-wd create its scheduled task, so reminders and automatic backups only happen while this window is open.')
     default:
       return t('Something went wrong. Please try again.')
   }

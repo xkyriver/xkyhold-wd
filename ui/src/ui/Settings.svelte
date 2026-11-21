@@ -116,6 +116,11 @@
       </p>
     </div>
   {/if}
+  {#if status.scheduler && !status.task && (s.automatic !== 'off' || s.remind_days > 0)}
+    <div class="banner warn">
+      <span>{t('Windows did not let XkyHold-wd create its scheduled task, so reminders and automatic backups only happen while this window is open.')}</span>
+    </div>
+  {/if}
   <div>
     <label for="keep">{t('Keep backups')}</label>
     <select id="keep" value={s.keep_months} onchange={(e) => saveSettings({ keep_months: Number(e.currentTarget.value) })}>

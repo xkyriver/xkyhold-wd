@@ -46,6 +46,7 @@ impl From<Error> for UiError {
         let kind = match &e {
             // Errors from the glue that the UI words differently.
             Error::Usage(m) if m.starts_with("Credential Manager") => "keyring",
+            Error::Usage(m) if m.starts_with("Task Scheduler") => "scheduler",
             Error::Usage(m) if m.contains("Google client") => "no-client",
             Error::NotFound(m) if m.starts_with("Google Drive backup") => "drive-missing",
             _ => e.kind(),
@@ -131,9 +132,10 @@ struct Status {
     job: Option<&'static str>,
     /// A backup runs on this computer outside this window (the CLI).
     running_here: bool,
-    /// Automatic backups with the window closed are available (Phase 5:
-    /// the Task Scheduler). Until then the window only reminds.
+    /// Automatic backups with the window closed are available.
     scheduler: bool,
+    /// The scheduled task is registered (PLAN.md 4.8).
+    task: bool,
     google_client: bool,
     keyring: bool,
     /// The list of what the last backup could not store exists.
@@ -162,7 +164,8 @@ async fn status(state: State<'_, AppState>) -> Res<Status> {
         remembered,
         job: state.running(),
         running_here: state.running().is_none() && xkyhold_wd_app::running_here(),
-        scheduler: false,
+        scheduler: true,
+        task: xkyhold_wd_app::schedule::installed().is_some(),
         google_client: xkyhold_wd_app::client().is_ok(),
         keyring: xkyhold_wd_app::secrets().is_ok(),
         issues_file: xkyhold_wd_app::issues_path().is_ok_and(|p| p.is_file()),
@@ -318,6 +321,20 @@ fn last_backup(snap: &Snapshot) -> LastBackup {
     }
 }
 
+/// Puts the scheduled task in step with the settings. Without it the app
+/// still works; only reminders and automatic backups with the window closed
+/// are missing.
+fn sync_task() {
+    // Development: a window on a test setup leaves the real task alone.
+    #[cfg(debug_assertions)]
+    if std::env::var_os("XKYHOLD_WD_NO_TASK").is_some() {
+        return;
+    }
+    if let Err(e) = Settings::load().and_then(|s| xkyhold_wd_app::schedule::sync_task(&s)) {
+        xkyhold_wd_app::log(&format!("the scheduled task could not be updated: {e}"));
+    }
+}
+
 /// Records the backup as this computer's and keeps it open.
 fn adopt(state: &AppState, target: Target, session: Session, remember: bool) -> Res<()> {
     let latest = xkyhold_wd_app::latest_of_this_computer(&session.repo)?;
@@ -335,6 +352,7 @@ fn adopt(state: &AppState, target: Target, session: Session, remember: bool) -> 
         s.repo_id = Some(session.repo.config.repo_id.clone());
         Ok(())
     })?;
+    sync_task();
     if remember && let Err(e) = xkyhold_wd_app::remember_key(&session.repo, true) {
         // The backup works without it; the password is asked each time.
         xkyhold_wd_app::log(&format!(
@@ -891,12 +909,19 @@ async fn save_settings(patch: SettingsPatch) -> Res<Settings> {
     if let Some(a) = &patch.automatic
         && a != "off"
     {
-        // Phase 5 brings the Task Scheduler; until then the window only reminds.
-        return Err(ui(
-            "no-scheduler",
-            "automatic backups are not available yet",
-        ));
+        if !["hourly", "daily", "weekly"].contains(&a.as_str()) {
+            return Err(ui("usage", "unknown frequency"));
+        }
+        // Automatic backups run without anyone to type the password.
+        let id = Settings::load()?.repo_id.unwrap_or_default();
+        if !xkyhold_wd_app::key_remembered(&id) {
+            return Err(ui(
+                "needs-key",
+                "automatic backups need the key in the Credential Manager",
+            ));
+        }
     }
+    let schedule_changed = patch.automatic.is_some() || patch.remind_days.is_some();
     if let Some(what) = &patch.what {
         // Refuse anything outside the user folder now rather than at the next backup.
         let home = xkyhold_wd_app::home()?;
@@ -933,6 +958,10 @@ async fn save_settings(patch: SettingsPatch) -> Res<Settings> {
         }
         Ok(())
     })?;
+    if schedule_changed {
+        let s = saved.clone();
+        blocking(move || Ok(xkyhold_wd_app::schedule::sync_task(&s)?)).await?;
+    }
     Ok(saved)
 }
 
@@ -972,6 +1001,7 @@ async fn set_remember(state: State<'_, AppState>, remember: bool) -> Res<()> {
             s.automatic = "off".into();
             Ok(())
         })?;
+        sync_task();
     }
     Ok(())
 }
@@ -998,6 +1028,8 @@ async fn forget_computer(state: State<'_, AppState>) -> Res<()> {
         };
         Ok(())
     })?;
+    // No backup set up: the task goes away.
+    sync_task();
     *state.session()? = None;
     Ok(())
 }
@@ -1127,6 +1159,9 @@ pub fn run() {
         probe::start(app.handle());
         Ok(())
     });
+    // Keep the task pointing at this program (it may have moved or been
+    // updated since the task was written).
+    std::thread::spawn(sync_task);
     builder
         .run(tauri::generate_context!())
         .expect("error while running XkyHold-wd");

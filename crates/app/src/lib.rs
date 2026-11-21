@@ -4,6 +4,7 @@
 //! end. The Windows counterpart of XkyHold-lx's `xkyhold-app`.
 
 pub mod scan;
+pub mod schedule;
 pub mod settings;
 
 use std::fs::File;

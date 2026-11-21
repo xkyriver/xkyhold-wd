@@ -241,8 +241,6 @@ export const ptPT: Record<string, string> = {
     'O XkyHold-wd não corre como administrador. Fecha-o e abre-o normalmente, sem “Executar como administrador”.',
   'The Windows Credential Manager could not be used. Try again; if it keeps failing, restart Windows.':
     'Não foi possível usar o Gestor de Credenciais do Windows. Tenta outra vez; se continuar a falhar, reinicia o Windows.',
-  'Automatic backups are not available in this version yet. XkyHold-wd reminds you instead.':
-    'As cópias automáticas ainda não estão disponíveis nesta versão. Em vez disso, o XkyHold-wd lembra-te.',
   '{n} in use by another program':
     '{n} em uso por outro programa',
   '{n} online-only, not downloaded':
@@ -297,4 +295,6 @@ export const ptPT: Record<string, string> = {
     'Escolhe pelo menos uma pasta. Até lá, é guardada a pasta de utilizador inteira.',
   'This backup is no longer in your Google Drive. If you moved it to the trash, restore it from there and try again.':
     'Esta cópia de segurança já não está no teu Google Drive. Se a puseste no lixo, recupera-a de lá e tenta outra vez.',
+  'Windows did not let XkyHold-wd create its scheduled task, so reminders and automatic backups only happen while this window is open.':
+    'O Windows não deixou o XkyHold-wd criar a sua tarefa agendada, por isso os lembretes e as cópias automáticas só acontecem com esta janela aberta.',
 }
