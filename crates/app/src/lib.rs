@@ -215,16 +215,40 @@ fn session_secrets() -> &'static MemorySecrets {
     SESSION.get_or_init(MemorySecrets::default)
 }
 
-/// The destination of a backup, and its local path when it is a folder
-/// (left out of the backup when it lies inside the user folder).
+/// The destination of an existing backup, and its local path when it is a
+/// folder (left out of the backup when it lies inside the user folder).
+/// A Drive backup that is gone (or in the trash) is not recreated.
 pub fn destination(
     target: &Target,
     settings: &Settings,
     limit_kb: Option<u64>,
 ) -> Result<(Arc<dyn Destination>, Option<PathBuf>)> {
+    open_destination(target, settings, limit_kb, false)
+}
+
+/// The destination for a new backup: its Drive folder is created.
+pub fn new_destination(
+    target: &Target,
+    settings: &Settings,
+    limit_kb: Option<u64>,
+) -> Result<(Arc<dyn Destination>, Option<PathBuf>)> {
+    open_destination(target, settings, limit_kb, true)
+}
+
+fn open_destination(
+    target: &Target,
+    settings: &Settings,
+    limit_kb: Option<u64>,
+    create: bool,
+) -> Result<(Arc<dyn Destination>, Option<PathBuf>)> {
     match target {
         Target::Drive { name } => {
-            let folder = DriveFolder::open(drive_client(settings, limit_kb)?, name)?;
+            let drive = drive_client(settings, limit_kb)?;
+            let folder = if create {
+                DriveFolder::open(drive, name)?
+            } else {
+                DriveFolder::open_existing(drive, name)?
+            };
             folder.warm()?;
             Ok((Arc::new(folder), None))
         }

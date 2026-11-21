@@ -155,6 +155,13 @@ fn destination(cli: &Cli) -> Result<(Arc<dyn Destination>, Option<PathBuf>)> {
     xkyhold_wd_app::destination(&target, &settings, cli.limit_upload)
 }
 
+/// [`destination`] for `init`: a new Drive backup gets its folder.
+fn new_destination(cli: &Cli) -> Result<(Arc<dyn Destination>, Option<PathBuf>)> {
+    let settings = Settings::load()?;
+    let (target, _) = target(cli, &settings)?;
+    xkyhold_wd_app::new_destination(&target, &settings, cli.limit_upload)
+}
+
 /// Opens with the password (or recovery key) when given, else with the
 /// key kept in the keyring, else asks for the password.
 fn open_dest(cli: &Cli, dest: Arc<dyn Destination>) -> Result<Repo> {
@@ -274,7 +281,7 @@ fn run(cli: &Cli) -> Result<()> {
             }
         }
         Command::Init => {
-            let (dest, _) = destination(cli)?;
+            let (dest, _) = new_destination(cli)?;
             let password = ask("New password: ", "XKYHOLD_WD_PASSWORD")?;
             if std::env::var("XKYHOLD_WD_PASSWORD").is_err()
                 && *ask("Repeat it: ", "-")? != *password

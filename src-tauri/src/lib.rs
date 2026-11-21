@@ -47,6 +47,7 @@ impl From<Error> for UiError {
             // Errors from the glue that the UI words differently.
             Error::Usage(m) if m.starts_with("Credential Manager") => "keyring",
             Error::Usage(m) if m.contains("Google client") => "no-client",
+            Error::NotFound(m) if m.starts_with("Google Drive backup") => "drive-missing",
             _ => e.kind(),
         };
         xkyhold_wd_app::log(&format!("{kind}: {e}"));
@@ -373,7 +374,7 @@ async fn create_backup(
                 FolderState::Other => return Err(ui("not-empty", "this folder holds other files")),
             },
         }
-        let (dest, repo_path) = xkyhold_wd_app::destination(&t, &settings, None)?;
+        let (dest, repo_path) = xkyhold_wd_app::new_destination(&t, &settings, None)?;
         let (repo, recovery) = Repository::create(
             dest.clone(),
             &password,

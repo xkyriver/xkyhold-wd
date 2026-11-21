@@ -295,4 +295,6 @@ export const ptPT: Record<string, string> = {
     'Confirma o que este computador guarda daqui em diante. As cópias anteriores ficam como estão.',
   'Choose at least one folder. Until you do, the whole user folder is saved.':
     'Escolhe pelo menos uma pasta. Até lá, é guardada a pasta de utilizador inteira.',
+  'This backup is no longer in your Google Drive. If you moved it to the trash, restore it from there and try again.':
+    'Esta cópia de segurança já não está no teu Google Drive. Se a puseste no lixo, recupera-a de lá e tenta outra vez.',
 }

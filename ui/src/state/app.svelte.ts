@@ -92,6 +92,8 @@ export function explain(err: unknown): string {
       return t('The Windows Credential Manager could not be used. Try again; if it keeps failing, restart Windows.')
     case 'no-client':
       return t('This copy of XkyHold-wd was built without Google Drive. Use a folder on this computer or a disk.')
+    case 'drive-missing':
+      return t('This backup is no longer in your Google Drive. If you moved it to the trash, restore it from there and try again.')
     case 'working':
       return t('XkyHold-wd is busy with another task. Try again when it finishes.')
     case 'locked':
