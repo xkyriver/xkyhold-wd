@@ -260,7 +260,7 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 
 ### Fase 3 (20/11/2026, concluída)
 
-- O wd usa os crates do engine por git (`xkyhold-engine` `b76db92`; `8b729e9` desde a Fase 4; `f3781f7` e depois `f393f86` desde 21/11/2026).
+- O wd usa os crates do engine por git (`xkyhold-engine` `b76db92`; `8b729e9` desde a Fase 4; `f3781f7`, `f393f86` e `88f0b3a` desde 21/11/2026).
 - `crates/app` (`xkyhold-wd-app`, o equivalente Windows do `xkyhold-app` do lx): definições em `%APPDATA%\xkyhold-wd\config.toml`; cache, registo (`xkyhold-wd.log`), lock local (`backup.lock`, `File::try_lock`) e a lista dos itens não guardados da última cópia (`last-backup-not-stored.txt`, decisão D2) em `%LOCALAPPDATA%\xkyhold-wd`; Gestor de Credenciais; cliente Google "XkyHold-wd" embutido na compilação (`XKYHOLD_WD_CLIENT_*`); cópia anterior procurada por computador e `origin.path`.
 - `crates/cli` (`xkyhold-wd-cli`): os comandos do lx (sem `--cross-mount` nem `check-release`). No fim da cópia diz quantos itens ficaram bloqueados, "só online" ou com nome inválido e onde está a lista; no fim do restauro lista os renomeados (D1) e as ligações recusadas, com o caminho do Modo de Programador (D3).
 - Visto na VM: CLI de ponta a ponta numa pasta local (`init`, `backup --only`, `snapshots`, `ls`, `restore`, `check --full`, `status`). Login Google pelo CLI na sessão do ambiente de trabalho, feito pelo proprietário no Edge; refresh token no Gestor de Credenciais. **Drive real, `XkyHold-wd test 1`:** criar, lembrar a chave, cópia de 12,6 MB aberta só com a chave do Gestor de Credenciais, restauro com conteúdo, data e "só de leitura" iguais, `check --full` sem problemas.
@@ -313,7 +313,9 @@ Encontrado pelo caminho (sem alteração nesta fase):
 
 ## 8. Questões em aberto
 
-- **Ligações relativas de Linux restauradas no Windows** (Fase 6): manter o alvo tal como guardado (texto atual da adenda Windows) ou trocar `/` por `\\` nos alvos relativos, para o Windows as seguir. Decisão do proprietário.
+Nenhuma de momento.
+
+**Resolvida a 21/11/2026 — ligações relativas de Linux restauradas no Windows:** o proprietário decidiu trocar `/` por `\\` nos alvos relativos (decisão D5 na adenda `FORMAT-v2-windows.md` 5; o alvo guardado não muda). Engine com a alteração e teste (55 testes no Windows); visto na VM: a cópia do lx restaurada outra vez e `link-notas` passa a apontar para `projeto\\notas.md` e abre o ficheiro.
 
 **Resolvida a 21/11/2026 — registar "só algumas pastas" na cópia:** o proprietário decidiu guardar a escolha. Adenda `xkyhold/docs/FORMAT-v2-chosen.md` (campo opcional `chosen` em cada raiz; rascunho para revisão); engine `f3781f7` escreve e lê o campo (52 testes em Linux, 53 no Windows); o lx 1.0.2 lista, restaura e verifica uma cópia com o campo. No wd, ligar a uma cópia traz a escolha preenchida em "O que guardar" (visto na VM: cópia com a escolha, "Remover", voltar a ligar, escolha de volta, cópia seguinte só dessa pasta). O "Concluir"/"Continuar" do assistente fica desligado enquanto "só algumas pastas" não tiver nenhuma pasta (antes contava como a pasta inteira). O lx pode receber o mesmo mais tarde.
 
