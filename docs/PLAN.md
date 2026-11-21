@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4, 5 e 6 a 21/11/2026; Fase 7 (prova real e release) em curso**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4 a 7 a 21/11/2026: XkyHold-wd 1.0.0 publicado**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -129,7 +129,7 @@ A `ui/` do lx com os mesmos ecrãs (Assistente, Início, Restaurar, Definições
 
 ### 4.9 Distribuição (W10)
 
-Instalador NSIS por utilizador (Tauri), sem assinatura Authenticode (W10), WebView2 com o modo "bootstrapper" para máquinas sem ele. Releases no GitHub com `.sig`, `latest.json` e `SHA256SUMS`, como o lx. Compilação: no CI `windows-latest` (o mais fiável para MSVC) ou em Linux com `cargo-xwin` (a avaliar na Fase 0). O cliente Google entra por variável de ambiente, fora do git.
+Instalador NSIS por utilizador (Tauri), sem assinatura Authenticode (W10), WebView2 com o modo "bootstrapper" para máquinas sem ele. Releases no GitHub com o instalador e `SHA256SUMS` (decisão de 21/11/2026; `.sig` e `latest.json` virão com um atualizador). Compilação: no CI `windows-latest` (o mais fiável para MSVC) ou em Linux com `cargo-xwin` (a avaliar na Fase 0). O cliente Google entra por variável de ambiente, fora do git.
 
 ## 5. Fases
 
@@ -311,7 +311,7 @@ Encontrado pelo caminho (sem alteração nesta fase):
 
 **Fase 6 concluída a 21/11/2026.** Próxima: Fase 7 (prova real e release).
 
-### Fase 7 (em curso, 21/11/2026)
+### Fase 7 (21/11/2026, concluída)
 
 Decisões do proprietário (21/11/2026): o repositório `xkyhold-wd` passa a **público** na release (como o lx e o engine; o "sim" para o ato concreto fica para essa altura); a release leva o instalador NSIS e `SHA256SUMS` (sem `.sig` nem `latest.json`, que vêm com um atualizador numa versão futura; ajusta a secção 4.9); a prova real vai para o **Google Drive** (`XkyHold-wd real test`, para o lixo depois); o utilizador Windows padrão para o restauro limpo é criado pelo proprietário.
 
@@ -321,6 +321,10 @@ Decisões do proprietário (21/11/2026): o repositório `xkyhold-wd` passa a **p
 - **Restauro noutro utilizador limpo:** um utilizador padrão de teste (sem administrador, criado pelo proprietário), entrada por RDP (o ecrã da VM entra sempre com a conta principal; a VM arrancada de forma a continuar ligada sem esse ecrã), instalador, login Google, ligar a `XkyHold-wd real test`, restaurar tudo para pasta nova: 24 075 ficheiros (2,4 GB). D3 vista em caso real: 14 ligações recusadas (`.cargo\bin\*.exe`, `Desktop\Shared`), com o caminho do Modo de Programador. Comparação ficheiro a ficheiro com os originais: 23 069 iguais (conteúdo, data, só de leitura e oculto); 0 com data ou marcas diferentes; 463 alterados no original depois do início da cópia e 337 que já não existem; 207 com conteúdo diferente, **todos em `AppData\Local`** de componentes do Windows, Edge, OneDrive e Bloco de Notas (estado vivo alterado sem mudar a data; nenhum documento); 47 caminhos longos que o PowerShell 5 da comparação não lê.
 - **Corrigido na prova:** os nomes das tarefas do Agendador são do computador inteiro, por isso dois utilizadores colidiam (o utilizador de teste caía no nome de recurso). Agora cada utilizador tem `\XkyHold\xkyhold-wd-<utilizador>` e a desinstalação só apaga a sua. Visto: o utilizador padrão cria a pasta `\XkyHold` e a sua tarefa (nível "Limited"), e a tarefa corre (resultado 0).
 - **Site** (repositório `xkyhold`, por publicar): páginas `/windows/` e `/pt/windows/`; o Windows como terceira forma na página inicial (botões, cartão, perguntas, chamada final, rodapé; visitantes em Windows veem-no primeiro); secção Windows na privacidade com o ID de cliente; na web, a linha do XkyHold-wd no passo das pastas em Windows e textos das cópias de formato 2 que já não dizem só "Linux". 177 testes da web passam.
+
+- **Release (21/11/2026):** repositório `xkyriver/xkyhold-wd` tornado **público** depois de uma revisão de todo o histórico (sem segredos; detalhes da máquina local retirados da versão atual do plano), com o "sim" do proprietário. **XkyHold-wd 1.0.0 publicado:** <https://github.com/xkyriver/xkyhold-wd/releases/tag/v1.0.0> (tag `v1.0.0` em `38c8d6c`; instalador 3 814 286 bytes e `SHA256SUMS`; a ligação "latest" do site descarrega-o). Site: `xkyhold` `ce8c5b6` e xkyriver.com `4c635bb` (Windows na stack da entrada XkyHold), com push; **deploy dos dois pelo proprietário**.
+
+**Fase 7 concluída a 21/11/2026: v1.0.0 publicada.**
 
 Melhorias pendentes vistas na Fase 7 (21/11/2026), sem data:
 - **Restaurar, lista longa:** o botão "Restaurar N" só aparece no fim da lista (com a pasta de utilizador inteira, são dezenas de linhas). Proposta: barra de ações fixa no fundo do cartão, com "Voltar", o destino em resumo e "Restaurar N", sempre visível. Sugestão do proprietário; o lx tem o mesmo ecrã.
