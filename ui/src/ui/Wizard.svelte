@@ -36,6 +36,8 @@
   let copied = $state(false)
   let what = $state<What>({ only: [], leave_out: [], presets: [], patterns: [], cross_mounts: [] })
   let remindDays = $state(1)
+  /** Connected to a backup that already existed (not creating one). */
+  let connected = $state(false)
   let automatic = $state(false)
 
   $effect(() => {
@@ -50,11 +52,11 @@
   const target = $derived<Target>(
     kind === 'drive' ? { kind: 'drive', name: choice === NEW ? name.trim() : choice } : { kind: 'local', path: folder.trim() },
   )
-  const isNew = $derived(step !== 'unlock')
+  const isNew = $derived(step !== 'unlock' && !connected)
   const steps = $derived<Step[]>(
     isNew
       ? ['where', kind === 'drive' ? 'choose' : 'folder', 'what', 'password', 'recovery', 'remind']
-      : ['where', kind === 'drive' ? 'choose' : 'folder', 'unlock'],
+      : ['where', kind === 'drive' ? 'choose' : 'folder', 'unlock', 'what'],
   )
   const position = $derived(Math.max(0, steps.indexOf(step === 'google' ? 'choose' : step)))
 
@@ -149,8 +151,18 @@
       )
       password = ''
       await refresh()
-      done(writable ? 'home' : 'restore')
+      if (!writable) return done('restore')
+      // A backup does not record "only some folders": confirm what to save
+      // before the first backup from here, so nothing larger starts silently.
+      what = $state.snapshot(app.status!.settings.what)
+      connected = true
+      step = 'what'
     })
+
+  async function confirmWhat() {
+    await saveSettings({ what: $state.snapshot(what) })
+    done('home')
+  }
 
   async function copy() {
     await navigator.clipboard.writeText(recoveryKey)
@@ -254,6 +266,13 @@
     <div class="row between">
       <button class="btn" onclick={() => (step = 'where')} disabled={busy}>{t('Back')}</button>
       <button class="btn primary" onclick={checkFolder} disabled={busy || !folder.trim()}>{t('Continue')}</button>
+    </div>
+  {:else if step === 'what' && connected}
+    <h1>{t('What to save')}</h1>
+    <p class="muted">{t('Check what this computer saves from now on. Earlier backups stay as they are.')}</p>
+    <What_ {what} change={(w) => (what = w)} />
+    <div class="row end">
+      <button class="btn primary" onclick={confirmWhat}>{t('Finish')}</button>
     </div>
   {:else if step === 'what'}
     <h1>{t('What to save')}</h1>

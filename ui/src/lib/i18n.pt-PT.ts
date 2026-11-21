@@ -292,4 +292,6 @@ export const ptPT: Record<string, string> = {
     'Bibliotecas do Steam',
   'Virtual machine disks (.vhdx, .vdi, .vmdk)':
     'Discos de máquinas virtuais (.vhdx, .vdi, .vmdk)',
+  'Check what this computer saves from now on. Earlier backups stay as they are.':
+    'Confirma o que este computador guarda daqui em diante. As cópias anteriores ficam como estão.',
 }
