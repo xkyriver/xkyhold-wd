@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4 e 5 a 21/11/2026; próxima: Fase 6 (leitura cruzada)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026, Fases 4, 5 e 6 a 21/11/2026; próxima: Fase 7 (prova real e release)**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -293,9 +293,27 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 
 **Fase 5 concluída a 21/11/2026.** Próxima: Fase 6 (leitura cruzada com a web e o lx).
 
+### Fase 6 (21/11/2026, concluída)
+
+Leitura cruzada vista com cópias reais, nos quatro sentidos:
+
+| Sentido | Como | Resultado |
+|---|---|---|
+| wd → lx | Cópia local feita pela janela do wd na VM (`auto-repo`: nomes com acentos, só de leitura, oculto, junction, 3 MB), lida pelo **lx 1.0.2** publicado (CLI, numa worktree descartável) | `snapshots`, `ls`, restauro e `check --full` sem problemas; conteúdo igual (checksum); a junction volta como ligação com o alvo Windows e o "só de leitura" não se aplica, como diz `FORMAT-v2-windows.md` 6 |
+| lx → wd | Cópia do lx 1.0.2 de uma pasta Linux de teste (`a:b.txt`, `what?.txt`, `CON.txt`, `fim.`, ligação para ficheiro e para pasta, 2 MB, data de 2020), aberta pela janela do wd | Os 6 ficheiros iguais, data de 2020 mantida; D1 visto: 4 nomes renomeados (`a_b.txt`, `what_.txt`, `CON_.txt`, `fim_`) e listados em "Detalhes"; "onde estavam" não oferecido (cópia de Linux); as ligações foram criadas (o utilizador da VM é administrador, por isso a D3 não apareceu) |
+| wd → web | Cópia `XkyHold-wd test 4` no Drive feita pela janela do wd, aberta pela XkyHold web em pré-visualização local (`localhost:5173`) | Listada, aberta com a palavra-passe, conteúdo com nomes e tamanhos certos (a junction como "ligação"), verificação "5 ficheiros … estão todos intactos" |
+| web → wd | Cópia `XkyHold-wd web test` feita pela web no Chrome do proprietário (formato 1), aberta pela janela do wd | Aberta só para restaurar, como deve; os 3 ficheiros iguais (checksum), nome com acentos e data de 2021 mantidos |
+
+Encontrado pelo caminho (sem alteração nesta fase):
+- **Ligações relativas de Linux com `/`** (por exemplo `projeto/notas.md`) são restauradas no Windows tal como guardadas, como manda `FORMAT-v2-windows.md` 5, mas o Windows não as segue. Trocar `/` por `\` nos alvos relativos resolveria; muda o texto da adenda. Decisão do proprietário (secção 8).
+- **XkyHold web:** (a) no navegador embutido da app Claude (Electron) o seletor de pastas devolve "cancelado" e o "Permitir" não faz nada; no Chrome funciona; a web não consegue distinguir este caso de um cancelamento; (b) o aviso "1 pasta adicionada" fica no ecrã depois de remover a pasta; (c) numa cópia do wd, as Definições dizem "A palavra-passe desta cópia muda-se no XkyHold-lx". Notas para o repositório `xkyhold`.
+- No Drive ficam as cópias de teste `XkyHold-wd test 4` e `XkyHold-wd web test` (para o lixo com o sim do proprietário).
+
+**Fase 6 concluída a 21/11/2026.** Próxima: Fase 7 (prova real e release).
+
 ## 8. Questões em aberto
 
-Nenhuma de momento.
+- **Ligações relativas de Linux restauradas no Windows** (Fase 6): manter o alvo tal como guardado (texto atual da adenda Windows) ou trocar `/` por `\\` nos alvos relativos, para o Windows as seguir. Decisão do proprietário.
 
 **Resolvida a 21/11/2026 — registar "só algumas pastas" na cópia:** o proprietário decidiu guardar a escolha. Adenda `xkyhold/docs/FORMAT-v2-chosen.md` (campo opcional `chosen` em cada raiz; rascunho para revisão); engine `f3781f7` escreve e lê o campo (52 testes em Linux, 53 no Windows); o lx 1.0.2 lista, restaura e verifica uma cópia com o campo. No wd, ligar a uma cópia traz a escolha preenchida em "O que guardar" (visto na VM: cópia com a escolha, "Remover", voltar a ligar, escolha de volta, cópia seguinte só dessa pasta). O "Concluir"/"Continuar" do assistente fica desligado enquanto "só algumas pastas" não tiver nenhuma pasta (antes contava como a pasta inteira). O lx pode receber o mesmo mais tarde.
 
