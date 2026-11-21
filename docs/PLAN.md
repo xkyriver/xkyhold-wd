@@ -1,6 +1,6 @@
 # XkyHold-wd — plano base
 
-Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026; próxima: Fase 4 (interface)**
+Data: 18/11/2026 · Estado: **plano aprovado (decisões W1–W11, 18/11/2026); Fase 0 concluída a 19/11/2026; Fases 1, 2 e 3 concluídas a 20/11/2026; Fase 4 (interface) em curso**
 
 O XkyHold-wd é a app de Windows da família XkyHold. Faz cópias de segurança cifradas da pasta do utilizador (`%USERPROFILE%`) inteira, ou de partes dela, incluindo `AppData`, ficheiros ocultos, chaves SSH, configurações de programas e ligações. Existe porque nem a XkyHold web (browser, recusa as pastas de sistema e os ocultos) nem o XkyHold-lx (só Linux) servem um utilizador avançado de Windows. Partilha o motor, o formato e o desenho com o XkyHold-lx.
 
@@ -267,6 +267,15 @@ Notas: antes de 1970 a biblioteca padrão arredonda as datas para o lado de 1970
 - **Cópia longa, `XkyHold-wd test 2`:** 40 ficheiros (419,4 MB) com `--limit-upload 100`, 4196 s (70 min). O token de acesso renovou-se sozinho a meio da cópia (às 23:03 UTC; o anterior tinha vencido) e outra vez no `check` a seguir, que terminou sem problemas (31 packs, 123 pedaços).
 
 **Fase 3 concluída a 20/11/2026.** Próxima: Fase 4 (janela Tauri com o Drive e com pasta local).
+
+### Fase 4 (em curso, 20–21/11/2026)
+
+- A `ui/` do lx copiada (W11) e adaptada ao Windows: "pasta de utilizador", Gestor de Credenciais, caminhos `E:\…` e `\\servidor\partilha\…`, restauro por omissão em `%USERPROFILE%\XkyHold-restore\<data hora>`. Sem o atualizador do lx (não faz parte do plano do wd). As cópias automáticas ficam escondidas até à Fase 5 (`scheduler: false`); até lá a janela só lembra.
+- D2 na janela: no fim da cópia, as contagens (em uso, só online, nome inválido) e o botão "Ver a lista", que abre `last-backup-not-stored.txt`; o Início mostra quantos itens ficaram de fora na última cópia. D1 e D3: no fim do restauro, quantos voltaram com outro nome e quantas ligações o Windows recusou (com o caminho do Modo de Programador), com os primeiros 50 em "Detalhes" e a lista toda no registo.
+- `crates/app/src/scan.rs`: pastas da pasta de utilizador e espaço das sugestões, sem atravessar reparse points e só com metadados (não descarrega ficheiros do OneDrive); pastas de nuvem incluindo "OneDrive - <organização>".
+- Visto na VM pela janela (comandada pela sonda de debug `XKYHOLD_WD_PROBE`, `scripts/vm/js.sh`): **Drive**, `XkyHold-wd test 3`: assistente até ao fim, cópia com um ficheiro bloqueado (aviso D2 e lista aberta no Bloco de Notas), segunda cópia com os 5 ficheiros, restauro para pasta nova com conteúdo, data, "só de leitura" e "oculto" iguais, "Abrir pasta" no Explorador, verificação completa sem problemas, reabertura só com a chave do Gestor de Credenciais. **Pasta local** (`C:\xkyvm\ui-local-repo`): assistente, cópia, restauro "onde estavam" com o conflito mostrado e "manter ambos" (`notes (restored).txt`), verificação. pt-PT e tema escuro vistos em captura.
+- Corrigido no teste: o ecrã Restaurar pedia a lista de cópias ao Drive a cada atualização do estado (20 s) e, nesse momento, um clique em Restaurar era recusado com a frase errada ("outro computador"). Agora a lista só se recarrega depois de cada tarefa, os comandos esperam um pouco pela cópia aberta quando não há tarefa a correr, e a recusa durante uma tarefa diz que o XkyHold-wd está ocupado.
+- Por ver: entrar no Google a partir da janela (a conta já estava ligada da Fase 3), "Remover deste computador" (termina a sessão Google), o seletor de pastas do sistema, os avisos D1/D3 com casos reais, ecrãs com escala acima de 100 %. As sugestões a deixar de fora ainda são as do lx (as de Linux mostram 0 B no Windows): sugestões próprias do Windows pedem uma alteração no `xkyhold-engine`.
 
 ## 8. Questões em aberto
 

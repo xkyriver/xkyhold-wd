@@ -349,6 +349,7 @@ fn run(cli: &Cli) -> Result<()> {
                     files: s.files,
                     bytes: s.bytes,
                     skipped: s.skipped,
+                    not_stored: xkyhold_wd_app::not_stored(s),
                 });
                 settings.save()?;
             }

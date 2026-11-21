@@ -39,6 +39,10 @@ pub struct LastBackup {
     pub bytes: u64,
     #[serde(default)]
     pub skipped: u64,
+    /// Items the backup could not store: in use, online-only, bad names
+    /// (listed in `last-backup-not-stored.txt`).
+    #[serde(default)]
+    pub not_stored: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -163,6 +167,7 @@ mod tests {
                 files: 3,
                 bytes: 9,
                 skipped: 0,
+                not_stored: 2,
             }),
             ..Default::default()
         };

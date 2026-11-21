@@ -3,6 +3,7 @@
 //! with the Credential Manager or a password, and running a backup end to
 //! end. The Windows counterpart of XkyHold-lx's `xkyhold-app`.
 
+pub mod scan;
 pub mod settings;
 
 use std::fs::File;
@@ -108,7 +109,13 @@ pub fn cache_options() -> Options {
 }
 
 pub fn secrets() -> Result<SystemKeyring> {
-    SystemKeyring::connect().map_err(|e| Error::Usage(e.to_string()))
+    SystemKeyring::connect().map_err(credential_manager)
+}
+
+/// Errors from the Credential Manager, worded so the window can tell them
+/// apart from other usage errors.
+fn credential_manager(e: impl std::fmt::Display) -> Error {
+    Error::Usage(format!("Credential Manager: {e}"))
 }
 
 /// The Google client "XkyHold-wd", built in at compile time from the
@@ -136,7 +143,7 @@ pub fn drive_client(settings: &Settings, limit_kb: Option<u64>) -> Result<Drive>
         .ok_or_else(|| Error::Session("not connected to Google Drive".into()))?;
     let key = google_refresh(account);
     let kept = match secrets() {
-        Ok(store) => store.get(&key).map_err(|e| Error::Usage(e.to_string()))?,
+        Ok(store) => store.get(&key).map_err(credential_manager)?,
         Err(_) => None,
     };
     let refresh = kept
@@ -185,7 +192,7 @@ pub fn google_sign_in_until(show: &mut dyn FnMut(&str), cancel: &AtomicBool) -> 
     let key = google_refresh(&account);
     if let Err(e) = secrets().and_then(|s| {
         s.set(&key, signed.refresh.as_bytes())
-            .map_err(|e| Error::Usage(e.to_string()))
+            .map_err(credential_manager)
     }) {
         log(&format!("Google session kept in memory only: {e}"));
         let _ = session_secrets().set(&key, signed.refresh.as_bytes());
@@ -197,7 +204,7 @@ pub fn google_sign_out(account: &str) -> Result<()> {
     let key = google_refresh(account);
     let _ = session_secrets().delete(&key);
     match secrets() {
-        Ok(store) => store.delete(&key).map_err(|e| Error::Usage(e.to_string())),
+        Ok(store) => store.delete(&key).map_err(credential_manager),
         Err(_) => Ok(()),
     }
 }
@@ -285,7 +292,7 @@ pub fn remember_key(repo: &Repo, remember: bool) -> Result<()> {
     } else {
         store.delete(&key)
     };
-    done.map_err(|e| Error::Usage(e.to_string()))
+    done.map_err(credential_manager)
 }
 
 pub fn key_remembered(repo_id: &str) -> bool {
@@ -298,7 +305,7 @@ pub fn key_remembered(repo_id: &str) -> bool {
 pub fn forget_key(repo_id: &str) -> Result<()> {
     secrets()?
         .delete(&repo_key(repo_id))
-        .map_err(|e| Error::Usage(e.to_string()))
+        .map_err(credential_manager)
 }
 
 /// A path inside the user folder, relative to it, `/` between names.
@@ -373,6 +380,30 @@ impl LocalLock {
             Err(std::fs::TryLockError::Error(e)) => Err(e.into()),
         }
     }
+}
+
+/// Items a backup could not store (decision D2): in use by another
+/// program, online-only, or with a name Windows reports as invalid.
+pub fn not_stored(stats: &xkyhold_core::snapshot::Stats) -> u64 {
+    stats.locked.unwrap_or(0) + stats.cloud_only.unwrap_or(0) + stats.bad_names.unwrap_or(0)
+}
+
+/// A backup runs on this computer in another process (the scheduled task,
+/// the CLI, another window).
+pub fn running_here() -> bool {
+    matches!(LocalLock::take(), Err(Error::RunningHere))
+}
+
+/// Opens a folder in File Explorer, or a file with its default app.
+pub fn open_path(path: &Path) -> Result<()> {
+    if !path.is_absolute() || !path.exists() {
+        return Err(Error::NotFound(path.display().to_string()));
+    }
+    // explorer.exe returns 1 even when it opened the path: do not wait.
+    std::process::Command::new("explorer.exe")
+        .arg(path)
+        .spawn()?;
+    Ok(())
 }
 
 /// The outcome of [`run_backup`].

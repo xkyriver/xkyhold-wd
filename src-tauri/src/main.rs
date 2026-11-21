@@ -1,30 +1,34 @@
 // No console window behind the app in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use serde::Serialize;
+const USAGE: &str = "Usage: xkyhold-wd [--help | --version]
 
-/// What the Phase 0 prototype shows: proof that the window reached Rust.
-#[derive(Serialize)]
-struct Probe {
-    os: &'static str,
-    arch: &'static str,
-    user_folder: Option<String>,
-    app_version: &'static str,
-}
+  (no option)   open the window
+  --help        show this help
+  --version     show the version
 
-#[tauri::command]
-fn probe() -> Probe {
-    Probe {
-        os: std::env::consts::OS,
-        arch: std::env::consts::ARCH,
-        user_folder: std::env::var("USERPROFILE").ok(),
-        app_version: env!("CARGO_PKG_VERSION"),
+For backups from a terminal, use xkyhold-wd-cli.";
+
+fn main() -> std::process::ExitCode {
+    use std::process::ExitCode;
+    match std::env::args_os().nth(1) {
+        None => {}
+        Some(a) if a == "--help" || a == "-h" => {
+            println!("{USAGE}");
+            return ExitCode::SUCCESS;
+        }
+        Some(a) if a == "--version" || a == "-V" => {
+            println!("xkyhold-wd {}", env!("CARGO_PKG_VERSION"));
+            return ExitCode::SUCCESS;
+        }
+        Some(a) => {
+            eprintln!(
+                "xkyhold-wd: unknown option {}\n\n{USAGE}",
+                a.to_string_lossy()
+            );
+            return ExitCode::from(2);
+        }
     }
-}
-
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![probe])
-        .run(tauri::generate_context!())
-        .expect("error while running XkyHold-wd");
+    xkyhold_wd_lib::run();
+    ExitCode::SUCCESS
 }
